@@ -122,6 +122,7 @@ async function getAllRoutes() {
   startLoading()
   const { data } = await fetchAllRoutes()
   tableData.value = arrayToTree(data)
+  console.log(data, "all routes")
   endLoading()
 }
 

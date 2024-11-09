@@ -3,32 +3,34 @@ import { installRouter } from '@/router'
 import { installPinia } from '@/store'
 import AppVue from './App.vue'
 import AppLoading from './components/common/AppLoading.vue'
+import axios from 'axios'
+
+axios.defaults.baseURL = import.meta.env.VITE_API_URL
+axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
 
 async function setupApp() {
-  // 载入全局loading加载状态
+  // Loading
   const appLoading = createApp(AppLoading)
   appLoading.mount('#appLoading')
 
-  // 创建vue实例
+  // Vue
   const app = createApp(AppVue)
 
-  // 注册模块Pinia
+  // Pinia
   await installPinia(app)
 
-  // 注册模块 Vue-router
+  // Vue-router
   await installRouter(app)
 
-  /* 注册模块 指令/静态资源 */
   Object.values(
     import.meta.glob<{ install: (app: App) => void }>('./modules/*.ts', {
       eager: true,
     }),
   ).map(i => app.use(i))
 
-  // 卸载载入动画
   appLoading.unmount()
 
-  // 挂载
   app.mount('#app')
 }
 

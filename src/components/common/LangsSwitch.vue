@@ -4,12 +4,12 @@ import { useAppStore } from '@/store'
 const appStore = useAppStore()
 const options = [
   {
-    label: 'English',
-    value: 'enUS',
+    label: 'Indonesia',
+    value: 'idID',
   },
   {
-    label: '中文',
-    value: 'zhCN',
+    label: 'English',
+    value: 'enUS',
   },
 ]
 </script>

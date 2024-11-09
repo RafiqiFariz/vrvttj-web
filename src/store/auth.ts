@@ -1,41 +1,42 @@
 import { router } from '@/router'
-import { fetchLogin } from '@/service'
 import { local } from '@/utils'
 import { useRouteStore } from './router'
 import { useTabStore } from './tab'
+import { fetchLogin } from '@/service'
 
 interface AuthStatus {
-  userInfo: Api.Login.Info | null
-  token: string
+  user: null
 }
+
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthStatus => {
     return {
-      userInfo: local.get('userInfo'),
-      token: local.get('accessToken') || '',
+      user: local.get('user'),
     }
   },
   getters: {
-    /** 是否登录 */
     isLogin(state) {
-      return Boolean(state.token)
+      return Boolean(state.user)
     },
   },
   actions: {
-    /* 登录退出，重置用户信息等 */
     async logout() {
       const route = unref(router.currentRoute)
-      // 清除本地缓存
+      // Hapus cache lokal
       this.clearAuthStorage()
-      // 清空路由、菜单等数据
+
+      // Hapus perutean, menu, dan data lainnya
       const routeStore = useRouteStore()
       routeStore.resetRouteStore()
-      // 清空标签栏数据
+
+      // Hapus data tab
       const tabStore = useTabStore()
       tabStore.clearAllTabs()
-      // 重置当前存储库
+
+      // Reset store saat ini
       this.$reset()
-      // 重定向到登录页
+
+      // Redirect ke halaman login
       if (route.meta.requiresAuth) {
         router.push({
           name: 'login',
@@ -45,41 +46,33 @@ export const useAuthStore = defineStore('auth-store', {
         })
       }
     },
+
     clearAuthStorage() {
-      local.remove('accessToken')
-      local.remove('refreshToken')
-      local.remove('userInfo')
+      local.remove('user')
     },
 
-    /* 用户登录 */
-    async login(userName: string, password: string) {
+    async login(email: string, password: string) {
       try {
-        const { isSuccess, data } = await fetchLogin({ userName, password })
-        if (!isSuccess)
+        const user = await fetchLogin({ email, password })
+
+        if (!user?.data)
           return
 
-        // 处理登录信息
-        await this.handleLoginInfo(data)
+        await this.handleLoginInfo(user)
       }
       catch (e) {
         console.warn('[Login Error]:', e)
       }
     },
 
-    /* 处理登录返回的数据 */
-    async handleLoginInfo(data: Api.Login.Info) {
-      // 将token和userInfo保存下来
-      local.set('userInfo', data)
-      local.set('accessToken', data.accessToken)
-      local.set('refreshToken', data.refreshToken)
-      this.token = data.accessToken
-      this.userInfo = data
+    async handleLoginInfo(data: any) {
+      local.set('user', data)
 
-      // 添加路由和菜单
+      // Menambahkan rute dan menu
       const routeStore = useRouteStore()
       await routeStore.initAuthRoute()
 
-      // 进行重定向跳转
+      // Redirect
       const route = unref(router.currentRoute)
       const query = route.query as { redirect: string }
       router.push({

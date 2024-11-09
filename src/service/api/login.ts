@@ -1,17 +1,20 @@
+import axios from 'axios'
 import { request } from '../http'
 
 interface Ilogin {
-  userName: string
+  email: string
   password: string
 }
 
-export function fetchLogin(data: Ilogin) {
-  const methodInstance = request.Post<Service.ResponseResult<Api.Login.Info>>('/login', data)
-  methodInstance.meta = {
-    authRole: null,
-  }
-  return methodInstance
+export async function fetchLogin(data: Ilogin) {
+  const csrfCookie = await axios.get('/sanctum/csrf-cookie')
+
+  if (csrfCookie.status !== 204) return
+
+  await axios.post('/login', data)
+  return await axios.get('/user')
 }
+
 export function fetchUpdateToken(data: any) {
   const method = request.Post<Service.ResponseResult<Api.Login.Info>>('/updateToken', data)
   method.meta = {
@@ -21,5 +24,5 @@ export function fetchUpdateToken(data: any) {
 }
 
 export function fetchUserRoutes(params: { id: number }) {
-  return request.Get<Service.ResponseResult<AppRoute.RowRoute[]> >('/getUserRoutes', { params })
+  return request.Get<Service.ResponseResult<AppRoute.RowRoute[]>>('/getUserRoutes', { params })
 }

@@ -1,26 +1,45 @@
 import { request } from '../http'
+import axios from 'axios'
+import qs from 'qs'
 
-// 获取所有路由信息
+const API_URL = `${import.meta.env.VITE_API_URL}/api/v1`
+
 export function fetchAllRoutes() {
   return request.Get<Service.ResponseResult<AppRoute.RowRoute[]>>('/getUserRoutes')
 }
 
-// 获取所有用户信息
-export function fetchUserPage() {
-  return request.Get<Service.ResponseResult<Entity.User[]>>('/userPage')
-}
-// 获取所有角色列表
-export function fetchRoleList() {
-  return request.Get<Service.ResponseResult<Entity.Role[]>>('/role/list')
+export async function fetchUserList(params: {
+  paginate?: boolean,
+  includeRole?: boolean,
+  pageSize?: number,
+} = {}) {
+  const defaultParams = { paginate: true, includeRole: true, pageSize: 20 }
+  const queryParams = qs.stringify({ ...defaultParams, ...params })
+
+  return axios.get(`${API_URL}/users?${queryParams}`).then((res) => res.data)
 }
 
-/**
- * 请求获取字典列表
- *
- * @param code - 字典编码，用于筛选特定的字典列表
- * @returns 返回的字典列表数据
- */
+export function createUser(data: Entity.User) {
+  return axios.post(`${API_URL}/users`, data)
+}
+
+export function updateUser(id: string, data: Partial<Entity.User>) {
+  return axios.put(`${API_URL}/users/${id}`, data)
+}
+
+export function deleteUser(id: number) {
+  return axios.delete(`${API_URL}/users/${id}`)
+}
+
+export function fetchRoleList() {
+  return axios.get(`${API_URL}/roles`).then((res) => res.data)
+}
+
 export function fetchDictList(code?: string) {
   const params = { code }
   return request.Get<Service.ResponseResult<Entity.Dict[]>>('/dict/list', { params })
+}
+
+export function uploadImage(data: FormData) {
+  return axios.post(`${API_URL}/api/v1/upload`, data)
 }

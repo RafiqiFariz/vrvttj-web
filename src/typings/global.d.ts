@@ -1,3 +1,5 @@
+import { User } from 'firebase/auth'
+
 /* 存放数据库实体表类型， 具体内容在 ./entities */
 declare namespace Entity {
 }
@@ -35,11 +37,7 @@ declare namespace Storage {
 
   interface Local {
     /* 存储用户信息 */
-    userInfo: Api.Login.Info
-    /* 存储访问token */
-    accessToken: string
-    /* 存储刷新token */
-    refreshToken: string
+    userInfo: User
     /* 存储登录账号 */
     loginAccount: any
     /* 存储当前语言 */

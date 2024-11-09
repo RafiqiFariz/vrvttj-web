@@ -2,12 +2,10 @@
 
 /* 角色数据库表字段 */
 namespace Entity {
-  type RoleType = 'super' | 'admin' | 'user'
+  type RoleType = 'admin' | 'lecturer' | 'student'
 
   interface Role {
-    /** 用户id */
-    id?: number
-    /** 用户名 */
-    role?: RoleType
+    id?: string | null
+    name?: RoleType | string | null
   }
 }

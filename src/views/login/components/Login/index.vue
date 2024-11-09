@@ -26,10 +26,12 @@ const rules = computed(() => {
     },
   }
 })
+
 const formValue = ref({
-  account: 'super',
-  pwd: '123456',
+  email: 'admin@gmail.com',
+  password: '12345678',
 })
+
 const isRemember = ref(false)
 const isLoading = ref(false)
 
@@ -40,19 +42,21 @@ function handleLogin() {
       return
 
     isLoading.value = true
-    const { account, pwd } = formValue.value
+    const { email, password } = formValue.value
 
     if (isRemember.value)
-      local.set('loginAccount', { account, pwd })
+      local.set('loginAccount', { email, password })
     else local.remove('loginAccount')
 
-    await authStore.login(account, pwd)
+    await authStore.login(email, password)
     isLoading.value = false
   })
 }
+
 onMounted(() => {
   checkUserAccount()
 })
+
 function checkUserAccount() {
   const loginAccount = local.get('loginAccount')
   if (!loginAccount)
@@ -69,11 +73,12 @@ function checkUserAccount() {
       {{ $t('login.signInTitle') }}
     </n-h2>
     <n-form ref="formRef" :rules="rules" :model="formValue" :show-label="false" size="large">
-      <n-form-item path="account">
-        <n-input v-model:value="formValue.account" clearable :placeholder="$t('login.accountPlaceholder')" />
+      <n-form-item path="email">
+        <n-input v-model:value="formValue.email" clearable :placeholder="$t('login.emailPlaceholder')" />
       </n-form-item>
-      <n-form-item path="pwd">
-        <n-input v-model:value="formValue.pwd" type="password" :placeholder="$t('login.passwordPlaceholder')" clearable show-password-on="click">
+      <n-form-item path="password">
+        <n-input v-model:value="formValue.password" type="password" :placeholder="$t('login.passwordPlaceholder')"
+          clearable show-password-on="click">
           <template #password-invisible-icon>
             <icon-park-outline-preview-close-one />
           </template>
@@ -102,26 +107,6 @@ function checkUserAccount() {
         </n-flex>
       </n-space>
     </n-form>
-    <n-divider>
-      <span op-80>{{ $t('login.or') }}</span>
-    </n-divider>
-    <n-space justify="center">
-      <n-button circle>
-        <template #icon>
-          <n-icon><icon-park-outline-wechat /></n-icon>
-        </template>
-      </n-button>
-      <n-button circle>
-        <template #icon>
-          <n-icon><icon-park-outline-tencent-qq /></n-icon>
-        </template>
-      </n-button>
-      <n-button circle>
-        <template #icon>
-          <n-icon><icon-park-outline-github-one /></n-icon>
-        </template>
-      </n-button>
-    </n-space>
   </div>
 </template>
 
