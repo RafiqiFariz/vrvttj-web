@@ -10,5 +10,7 @@ namespace Entity {
     description?: string
     dance?: Entity.Dance
     dance_part?: Entity.DancePart
+    created_at?: string
+    updated_at?: string
   }
 }

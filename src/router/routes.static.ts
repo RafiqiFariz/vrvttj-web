@@ -116,7 +116,7 @@ export const staticRoutes: AppRoute.RowRoute[] = [
     requiresAuth: true,
     icon: 'icon-park-outline:edit-one',
     menuType: 'page',
-    componentPath: '/quiz/answers/index.vue',
+    componentPath: '/quiz/options/index.vue',
     id: 11,
     pid: 9,
   },

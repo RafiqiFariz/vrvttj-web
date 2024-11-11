@@ -1,63 +1,68 @@
 <script setup lang="tsx">
 import type { DataTableColumns, FormInst } from 'naive-ui'
-import { Gender } from '@/constants'
 import { useBoolean } from '@/hooks'
-import { fetchUserList } from '@/service'
-import { NButton, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
+import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
+import { useQuizOptionStore } from '@/store/quiz_option';
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
 
+const quizOptionStore = useQuizOptionStore()
+const { quizOptions } = storeToRefs(quizOptionStore)
+
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 30, 50],
+  onChange: (page: number) => {
+    pagination.page = page
+    getQuizOptionList()
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    pagination.pageSize = pageSize
+    pagination.page = 1
+    getQuizOptionList()
+  },
+})
+
 const initialModel = {
   condition_1: '',
-  condition_2: '',
+  condition_2: '1',
   condition_3: '',
 }
 const model = ref({ ...initialModel })
 
 const formRef = ref<FormInst | null>()
-function sendMail(id?: number) {
-  window.$message.success(`Hapus pengguna id :${id}`)
-}
-const columns: DataTableColumns<Entity.User> = [
+const columns: DataTableColumns<Entity.QuizOption> = [
   {
     title: 'ID',
     align: 'center',
     key: 'id',
   },
   {
-    title: 'Nama',
+    title: 'Pertanyaan',
     align: 'center',
-    key: 'userName',
+    key: 'quiz_question.question',
   },
   {
-    title: 'Jenis Kelamin',
+    title: 'Jawaban',
     align: 'center',
-    key: 'gender',
+    key: 'answer',
+    ellipsis: true,
+  },
+  {
+    title: 'Status Kebenaran',
+    align: 'center',
+    key: 'is_correct',
     render: (row) => {
-      const tagType = {
-        0: 'primary',
-        1: 'success',
-      } as const
-      if (row.gender) {
-        // return (
-        //   <NTag type={tagType[row.gender]}>
-        //     {Gender[row.gender]}
-        //   </NTag>
-        // )
-      }
+      return (
+        <NTag type={row.is_correct ? 'success' : 'error'}>
+          {row.is_correct ? 'Benar' : 'Salah'}
+        </NTag>
+      )
     },
-  },
-  {
-    title: 'Email',
-    align: 'center',
-    key: 'email',
-  },
-  {
-    title: 'No. Telp',
-    align: 'center',
-    key: 'tel',
   },
   {
     title: 'Aksi',
@@ -72,7 +77,11 @@ const columns: DataTableColumns<Entity.User> = [
           >
             Edit
           </NButton>
-          <NPopconfirm onPositiveClick={() => sendMail(row.id)}>
+          <NPopconfirm onPositiveClick={async () => {
+            const res = await quizOptionStore.destroy(row.id!)
+            window.$message.success(res?.data.message)
+            getQuizOptionList()
+          }}>
             {{
               default: () => 'Yakin ingin menghapus?',
               trigger: () => <NButton size="small">Hapus</NButton>,
@@ -84,47 +93,41 @@ const columns: DataTableColumns<Entity.User> = [
   },
 ]
 
-const listData = ref<Entity.User[]>([])
-// function handleUpdateDisabled(value: 0 | 1, id: number) {
-//   const index = listData.value.findIndex(item => item.id === id)
-//   if (index > -1)
-//     listData.value[index].status = value
-// }
-
 onMounted(() => {
-  getUserList()
+  getQuizOptionList()
 })
-async function getUserList() {
+
+const getQuizOptionList = async () => {
   startLoading()
-  await fetchUserList().then((res: any) => {
-    listData.value = res.data.list
-    endLoading()
+  await quizOptionStore.all({
+    page: pagination.page, includeQuizQuestion: true,
+    pageSize: pagination.pageSize
   })
+  endLoading()
 }
-function changePage(page: number, size: number) {
-  window.$message.success(`paginator:${page},${size}`)
-}
-function handleResetSearch() {
+
+const handleResetSearch = () => {
   model.value = { ...initialModel }
 }
 
-  type ModalType = 'add' | 'edit'
+type ModalType = 'add' | 'edit'
 const modalType = ref<ModalType>('add')
-function setModalType(type: ModalType) {
+const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
-const editData = ref<Entity.User | null>(null)
-function setEditData(data: Entity.User | null) {
+const editData = ref<Entity.QuizOption | null>(null)
+const setEditData = (data: Entity.QuizOption | null) => {
   editData.value = data
 }
 
-function handleEditTable(row: Entity.User) {
+const handleEditTable = (row: Entity.QuizOption) => {
   setEditData(row)
   setModalType('edit')
   openModal()
 }
-function handleAddTable() {
+
+const handleAddTable = () => {
   openModal()
   setModalType('add')
 }
@@ -136,16 +139,17 @@ function handleAddTable() {
       <n-form ref="formRef" :model="model" label-placement="left" inline :show-feedback="false">
         <n-flex>
           <n-form-item label="Nama" path="condition_1">
-            <n-input v-model:value="model.condition_1" placeholder="Masukkan nama" />
+            <n-input v-model:value="model.condition_1" placeholder="Masukkan nama mahasiswa" />
           </n-form-item>
-          <n-form-item label="Email" path="condition_2">
-            <n-input v-model:value="model.condition_2" placeholder="Masukkan email" />
+          <n-form-item label="Quiz" path="condition_2">
+            <n-select :options="[{ label: 'Quiz 1', value: '1' }]" v-model:value="model.condition_2"
+              placeholder="Pilih Quiz" />
           </n-form-item>
-          <n-form-item label="No. Telp" path="condition_3">
-            <n-input v-model:value="model.condition_3" placeholder="Masukkan nomor telepon" />
+          <n-form-item label="Skor" path="condition_3">
+            <n-input v-model:value="model.condition_3" placeholder="Masukkan skor" />
           </n-form-item>
           <n-flex class="ml-auto">
-            <NButton type="primary" @click="getUserList">
+            <NButton type="primary" @click="getQuizOptionList">
               <template #icon>
                 <icon-park-outline-search />
               </template>
@@ -183,9 +187,9 @@ function handleAddTable() {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="listData" :loading="loading" />
-        <Pagination :count="100" @change="changePage" />
-        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" />
+        <n-data-table :columns="columns" :data="quizOptions" :loading="loading" :pagination="pagination" />
+        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData"
+          @fetch-data="getQuizOptionList" />
       </NSpace>
     </n-card>
   </NSpace>

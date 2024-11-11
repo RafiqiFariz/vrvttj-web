@@ -6,5 +6,7 @@ namespace Entity {
     name: string
     picture?: string | File
     description?: string
+    created_at?: string
+    updated_at?: string
   }
 }

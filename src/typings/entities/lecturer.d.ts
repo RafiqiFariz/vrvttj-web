@@ -5,5 +5,7 @@ namespace Entity {
   interface Lecturer {
     id?: number
     nrp: string
+    created_at?: string
+    updated_at?: string
   }
 }

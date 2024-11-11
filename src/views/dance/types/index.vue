@@ -3,10 +3,13 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { deleteDanceType, fetchDanceTypeList } from '@/service/api/dance_type';
+import { useDanceTypeStore } from '@/store/dance-type';
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
+
+const danceTypeStore = useDanceTypeStore()
+const { danceTypes } = storeToRefs(danceTypeStore)
 
 const pagination = reactive({
   page: 1,
@@ -57,11 +60,10 @@ const columns: DataTableColumns<Entity.DanceType> = [
           >
             Edit
           </NButton>
-          <NPopconfirm onPositiveClick={() => {
-            deleteDanceType(row.id!).then((res) => {
-              window.$message.success(res.data.message)
-              getDanceTypeList()
-            })
+          <NPopconfirm onPositiveClick={async () => {
+            const res = await danceTypeStore.destroy(row.id!)
+            window.$message.success(res?.data.message)
+            getDanceTypeList()
           }}>
             {{
               default: () => 'Yakin ingin menghapus?',
@@ -74,28 +76,14 @@ const columns: DataTableColumns<Entity.DanceType> = [
   },
 ]
 
-const listData = ref<Entity.DanceType[]>([])
-
 onMounted(() => {
   getDanceTypeList()
 })
 
 const getDanceTypeList = async () => {
   startLoading()
-
-  try {
-    const res = await fetchDanceTypeList({ page: pagination.page, pageSize: pagination.pageSize })
-
-    if (res.data.length > 0) {
-      listData.value = res.data
-    } else {
-      listData.value = []
-    }
-
-    endLoading()
-  } catch (error) {
-    console.error(error)
-  }
+  await danceTypeStore.all({ page: pagination.page, pageSize: pagination.pageSize })
+  endLoading()
 }
 
 const handleResetSearch = () => {
@@ -173,7 +161,7 @@ const handleAddTable = () => {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="listData" :loading="loading" :pagination="pagination" />
+        <n-data-table :columns="columns" :data="danceTypes" :loading="loading" :pagination="pagination" />
         <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getDanceTypeList" />
       </NSpace>
     </n-card>

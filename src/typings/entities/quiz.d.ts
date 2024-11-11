@@ -1,11 +1,10 @@
 /// <reference path="../global.d.ts"/>
 
-/* 角色数据库表字段 */
 namespace Entity {
-  interface Student {
+  interface Quiz {
     id?: number
-    nim?: string
-    user?: Entity.User | null
+    title: string
+    description?: string
     created_at?: string
     updated_at?: string
   }

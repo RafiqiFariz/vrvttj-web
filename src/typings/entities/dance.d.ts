@@ -8,5 +8,7 @@ namespace Entity {
     picture?: string | File
     description?: string
     dance_type?: Entity.DanceType
+    created_at?: string
+    updated_at?: string
   }
 }

@@ -6,6 +6,8 @@ namespace Entity {
 
   interface Role {
     id?: string | null
-    name?: RoleType | string | null
+    name: RoleType | string | null
+    created_at?: string
+    updated_at?: string
   }
 }

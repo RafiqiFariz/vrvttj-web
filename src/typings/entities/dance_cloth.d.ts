@@ -9,5 +9,7 @@ namespace Entity {
     asset_path?: string | File
     description?: string
     dance?: Entity.Dance
+    created_at?: string
+    updated_at?: string
   }
 }
