@@ -11,9 +11,9 @@ export function usePermission() {
     if (!permission)
       return true
 
-    if (!authStore.userInfo)
+    if (!authStore.user)
       return false
-    const { role } = authStore.userInfo
+    const { role } = authStore.user
 
     let has = role === 'super'
     if (!has) {

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
-import { useDanceMoveStore } from '@/store/dance-move';
-import { useDancePartStore } from '@/store/dance-part';
-import _ from 'lodash';
+import { useDanceClothesStore } from '@/store/dance-clothes';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -10,6 +8,7 @@ interface Props {
   type?: ModalType
   modalData?: any
 }
+
 const {
   visible,
   type = 'add',
@@ -19,18 +18,16 @@ const {
 const emit = defineEmits<Emits>()
 
 const API_URL = import.meta.env.VITE_API_URL
-const danceMoveStore = useDanceMoveStore()
+const danceClothesStore = useDanceClothesStore()
 const danceStore = useDanceStore()
-const dancePartStore = useDancePartStore()
-const { errors } = storeToRefs(danceMoveStore)
+const { errors } = storeToRefs(danceClothesStore)
 const { danceOptions } = storeToRefs(danceStore)
-const { dancePartOptions } = storeToRefs(dancePartStore)
 
-const defaultFormModal: Entity.DanceMove = {
+const defaultFormModal: Entity.DanceClothes = {
   dance_id: null,
-  dance_part_id: null,
   name: '',
   picture: '',
+  asset_path: '',
   description: '',
 }
 
@@ -58,8 +55,8 @@ const closeModal = (visible = false) => {
 type ModalType = 'add' | 'edit'
 const title = computed(() => {
   const titles: Record<ModalType, string> = {
-    add: 'Tambah Gerak Tari',
-    edit: 'Edit Gerak Tari',
+    add: 'Tambah Busana Tari',
+    edit: 'Edit Busana Tari',
   }
   return titles[type]
 })
@@ -77,15 +74,23 @@ const UpdateFormModelByModalType = () => {
   handlers[type]()
 }
 
-const handleUploadChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
+const handlePictureChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
   const { file } = options
   if (file.file) {
     formModel.value.picture = file.file
   }
 }
 
-const createDanceMoveData = async () => {
-  const res = await danceMoveStore.create(formModel.value)
+const handleAssetChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
+  const { file } = options
+  if (file.file) {
+    formModel.value.asset_path = file.file
+  }
+}
+
+const createDanceClothesData = async () => {
+  console.log(formModel.value)
+  const res = await danceClothesStore.create(formModel.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -93,15 +98,14 @@ const createDanceMoveData = async () => {
   }
 }
 
-const updateDanceMoveData = async () => {
+const updateDanceClothesData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
   delete payload.dance
-  delete payload.dance_part
 
-  const res = await danceMoveStore.update(modalData.id, payload)
+  const res = await danceClothesStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -111,9 +115,9 @@ const updateDanceMoveData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createDanceMoveData()
+    await createDanceClothesData()
   } else {
-    await updateDanceMoveData()
+    await updateDanceClothesData()
   }
 }
 
@@ -127,7 +131,6 @@ const feedback = (path: string) => {
 
 onMounted(() => {
   danceStore.all({ paginate: false })
-  dancePartStore.all({ paginate: false })
 })
 
 watch(
@@ -151,22 +154,25 @@ watch(
           <n-select :options="danceOptions" v-model:value="formModel.dance_id"
             placeholder="Pilih Tarian" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Bagian Tari" path="dance_part_id" :feedback="feedback('dance_part_id')"
-          :validation-status="error('dance_part_id')">
-          <n-select :options="dancePartOptions" v-model:value="formModel.dance_part_id"
-            placeholder="Pilih Bagian Tari" />
-        </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Gambar" path="picture" :feedback="feedback('picture')"
           :validation-status="error('picture')">
           <n-space vertical>
             <n-image width="100" :src="`${API_URL}/storage/${formModel.picture}`" v-if="type === 'edit'" />
-            <n-upload accept=".jpg,.png,.jpeg" :default-upload="false" :max="1" @change="handleUploadChange">
-              <n-button>Select File</n-button>
+            <n-upload class="w-100" accept=".jpg,.png,.jpeg" :default-upload="false" :max="1" @change="handlePictureChange">
+              <n-button class="w-100">Select File</n-button>
             </n-upload>
           </n-space>
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Nama" path="name" :feedback="feedback('name')"
-          :validation-status="error('name')">
+        <n-form-item-grid-item :span="24" label="Asset" path="asset_path" :feedback="feedback('asset_path')"
+          :validation-status="error('asset_path')">
+          <n-space vertical>
+            <n-image width="100" :src="`${API_URL}/storage/${formModel.asset_path}`" v-if="type === 'edit'" />
+            <n-upload class="w-100" accept=".obj,.fbx,.glb,.glTF" :default-upload="false" :max="1" @change="handleAssetChange">
+              <n-button class="w-100">Select File</n-button>
+            </n-upload>
+          </n-space>
+        </n-form-item-grid-item>
+        <n-form-item-grid-item :span="24" label="Nama" path="name">
           <n-input v-model:value="formModel.name" placeholder="Masukkan nama" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Deskripsi" path="description" :feedback="feedback('description')"

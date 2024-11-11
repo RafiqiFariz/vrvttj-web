@@ -1,4 +1,5 @@
 import { fetchDictList } from '@/service'
+import { DictMap } from '@/typings/global'
 import { session } from '@/utils'
 
 export const useDictStore = defineStore('dict-store', {

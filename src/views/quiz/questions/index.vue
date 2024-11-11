@@ -2,7 +2,7 @@
 import type { DataTableColumns, FormInst } from 'naive-ui'
 import { Gender } from '@/constants'
 import { useBoolean } from '@/hooks'
-import { fetchUserPage } from '@/service'
+import { fetchUserList } from '@/service'
 import { NButton, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
 
@@ -41,11 +41,11 @@ const columns: DataTableColumns<Entity.User> = [
         1: 'success',
       } as const
       if (row.gender) {
-        return (
-          <NTag type={tagType[row.gender]}>
-            {Gender[row.gender]}
-          </NTag>
-        )
+        // return (
+        //   <NTag type={tagType[row.gender]}>
+        //     {Gender[row.gender]}
+        //   </NTag>
+        // )
       }
     },
   },
@@ -85,18 +85,18 @@ const columns: DataTableColumns<Entity.User> = [
 ]
 
 const listData = ref<Entity.User[]>([])
-function handleUpdateDisabled(value: 0 | 1, id: number) {
-  const index = listData.value.findIndex(item => item.id === id)
-  if (index > -1)
-    listData.value[index].status = value
-}
+// function handleUpdateDisabled(value: 0 | 1, id: number) {
+//   const index = listData.value.findIndex(item => item.id === id)
+//   if (index > -1)
+//     listData.value[index].status = value
+// }
 
 onMounted(() => {
   getUserList()
 })
 async function getUserList() {
   startLoading()
-  await fetchUserPage().then((res: any) => {
+  await fetchUserList().then((res: any) => {
     listData.value = res.data.list
     endLoading()
   })

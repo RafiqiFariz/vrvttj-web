@@ -4,10 +4,12 @@ import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
 import { DocumentData } from 'firebase/firestore'
-import { deleteUser, fetchUserList } from '@/service/api/system'
+import { deleteUser, fetchUserList } from '@/service/api/user'
 import * as _ from 'lodash'
 
-// Pagination controls
+const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
+const { bool: visible, setTrue: openModal } = useBoolean(false)
+
 const pagination = reactive({
   page: 1,
   pageSize: 20,
@@ -23,9 +25,6 @@ const pagination = reactive({
     getUserList()
   },
 })
-
-const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
-const { bool: visible, setTrue: openModal } = useBoolean(false)
 
 const initialModel = {
   condition_1: '',
@@ -123,13 +122,13 @@ onMounted(() => {
   getUserList()
 })
 
-async function getUserList() {
+const getUserList = async () => {
   startLoading()
 
-  const response: any = await fetchUserList({ pageSize: pagination.pageSize })
+  const res: any = await fetchUserList({ page: pagination.page, pageSize: pagination.pageSize })
 
-  if (response.data.length > 0) {
-    listData.value = response.data
+  if (res.data.length > 0) {
+    listData.value = res.data
   } else {
     listData.value = []
   }
@@ -137,28 +136,28 @@ async function getUserList() {
   endLoading()
 }
 
-function handleResetSearch() {
+const handleResetSearch = () => {
   model.value = { ...initialModel }
 }
 
 type ModalType = 'add' | 'edit'
 const modalType = ref<ModalType>('add')
-function setModalType(type: ModalType) {
+const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
 const editData = ref<Entity.User | null>(null)
-function setEditData(data: Entity.User | null) {
+const setEditData = (data: Entity.User | null) => {
   editData.value = data
 }
 
-function handleEditTable(row: Entity.User) {
+const handleEditTable = (row: Entity.User) => {
   setEditData(row)
   setModalType('edit')
   openModal()
 }
 
-function handleAddTable() {
+const handleAddTable = () => {
   openModal()
   setModalType('add')
 }
@@ -218,7 +217,7 @@ function handleAddTable() {
           </NButton>
         </div>
         <n-data-table :columns="columns" :data="listData" :loading="loading" :pagination="pagination" />
-        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @updateSuccess="getUserList" />
+        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getUserList" />
       </NSpace>
     </n-card>
   </NSpace>

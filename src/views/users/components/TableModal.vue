@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { createUser, fetchRoleList, updateUser } from '@/service'
+import { createUser, fetchRoleList, updateUser, uploadImage } from '@/service'
 import axios from 'axios'
 import * as _ from 'lodash'
 import { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
 import { Option } from 'naive-ui/es/transfer/src/interface'
 import moment from 'moment'
+
+const API_URL = import.meta.env.VITE_API_URL
 
 interface Props {
   visible: boolean
@@ -15,8 +17,6 @@ interface Props {
 interface LocalUser extends Entity.User {
   old_role_id?: string | null
 }
-
-const API_URL = import.meta.env.VITE_API_URL
 
 const {
   visible,
@@ -51,7 +51,7 @@ const formModel = ref({ ...defaultFormModal })
 
 interface Emits {
   (e: 'update:visible', visible: boolean): void
-  (e: 'updateSuccess'): void
+  (e: 'fetchData'): void
 }
 
 const modalVisible = computed({
@@ -65,6 +65,7 @@ const modalVisible = computed({
 
 const closeModal = (visible = false) => {
   emit('update:visible', visible)
+  errors.value = {}
   formModel.value = { ...defaultFormModal }
 }
 
@@ -104,7 +105,7 @@ const UpdateFormModelByModalType = () => {
 
 const errors = ref<Record<string, string[]>>({})
 
-const getUserPayload = async () => {
+const createUserPayload = async () => {
   let photoUrl = _.replace(previewImageUrl.value, `${API_URL}/`, '')
 
   if (previewImageUrl.value.toString().includes('storage/tmp')) {
@@ -135,15 +136,14 @@ const updateUserData = async () => {
 
   try {
     const payload = {
-      ...(await getUserPayload()),
+      ...(await createUserPayload()),
       _method: 'PUT',
     }
 
     const response = await updateUser(modalData.id, payload)
 
     if (response.status === 200) {
-      emit('updateSuccess')
-      errors.value = {}
+      emit('fetchData')
       closeModal()
     }
   } catch (error) {
@@ -153,11 +153,10 @@ const updateUserData = async () => {
 
 const createUserData = async () => {
   try {
-    const response = await createUser(await getUserPayload())
+    const response = await createUser(await createUserPayload())
 
     if (response.status === 200) {
-      emit('updateSuccess')
-      errors.value = {}
+      emit('fetchData')
       closeModal()
     }
   } catch (error: any) {
@@ -185,6 +184,7 @@ const handleUpload = (options: UploadCustomRequestOptions) => {
 
   formData.append('photo', file.file as File)
   formData.append('id', modalData?.id || '')
+
   axios.post(action as string, formData, {
     headers: headers as Record<string, string>,
     onUploadProgress: (progressEvent) => {
@@ -204,7 +204,7 @@ const handlePersistentUpload = async (tempUrl: string) => {
   try {
     const formData = new FormData()
     formData.append('photo', tempUrl)
-    const response = await axios.post(`${API_URL}/api/v1/upload`, formData)
+    const response = await uploadImage(formData)
     return response.data
   } catch (error) {
     console.error('Error uploading image: ', error)
@@ -231,6 +231,18 @@ const religions = [
 ]
 
 const roles = ref<Option[]>([])
+
+// Fungsi untuk mengatur gambar default berdasarkan modalData
+const setDefaultPhoto = () => {
+  defaultPhoto.value = [
+    {
+      id: '1',
+      name: 'photo',
+      status: 'finished',
+      url: `${API_URL}/storage/${modalData.photo}`,
+    } as UploadFileInfo,
+  ]
+}
 
 onMounted(() => {
   fetchRoleList().then((response) => {
@@ -278,18 +290,6 @@ watch(
   },
   { immediate: true }
 )
-
-// Fungsi untuk mengatur gambar default berdasarkan modalData
-const setDefaultPhoto = () => {
-  defaultPhoto.value = [
-    {
-      id: '1',
-      name: 'photo',
-      status: 'finished',
-      url: `${API_URL}/storage/${modalData.photo}`,
-    } as UploadFileInfo,
-  ]
-}
 
 const isError = (path: string) => {
   return errors.value[path] ? 'error' : undefined

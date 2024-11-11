@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
-import { useDanceMoveStore } from '@/store/dance-move';
-import { useDancePartStore } from '@/store/dance-part';
-import _ from 'lodash';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -17,23 +14,16 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
-
 const API_URL = import.meta.env.VITE_API_URL
-const danceMoveStore = useDanceMoveStore()
 const danceStore = useDanceStore()
-const dancePartStore = useDancePartStore()
-const { errors } = storeToRefs(danceMoveStore)
-const { danceOptions } = storeToRefs(danceStore)
-const { dancePartOptions } = storeToRefs(dancePartStore)
+const { errors } = storeToRefs(danceStore)
 
-const defaultFormModal: Entity.DanceMove = {
-  dance_id: null,
-  dance_part_id: null,
+const defaultFormModal: Entity.Dance = {
+  dance_type_id: null,
   name: '',
   picture: '',
   description: '',
 }
-
 const formModel = ref({ ...defaultFormModal })
 
 interface Emits {
@@ -58,8 +48,8 @@ const closeModal = (visible = false) => {
 type ModalType = 'add' | 'edit'
 const title = computed(() => {
   const titles: Record<ModalType, string> = {
-    add: 'Tambah Gerak Tari',
-    edit: 'Edit Gerak Tari',
+    add: 'Tambah Tarian',
+    edit: 'Edit Tarian',
   }
   return titles[type]
 })
@@ -84,8 +74,9 @@ const handleUploadChange = (options: { file: UploadFileInfo, fileList: Array<Upl
   }
 }
 
-const createDanceMoveData = async () => {
-  const res = await danceMoveStore.create(formModel.value)
+const createDanceData = async () => {
+  const res = await danceStore.create(formModel.value)
+  console.log(errors.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -93,15 +84,13 @@ const createDanceMoveData = async () => {
   }
 }
 
-const updateDanceMoveData = async () => {
+const updateDanceData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
-  delete payload.dance
-  delete payload.dance_part
 
-  const res = await danceMoveStore.update(modalData.id, payload)
+  const res = await danceStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -111,9 +100,9 @@ const updateDanceMoveData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createDanceMoveData()
+    await createDanceData()
   } else {
-    await updateDanceMoveData()
+    await updateDanceData()
   }
 }
 
@@ -124,11 +113,6 @@ const error = (path: string) => {
 const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
 }
-
-onMounted(() => {
-  danceStore.all({ paginate: false })
-  dancePartStore.all({ paginate: false })
-})
 
 watch(
   () => visible,
@@ -146,15 +130,9 @@ watch(
   }">
     <n-form label-placement="left" :model="formModel" label-align="left" :label-width="80">
       <n-grid :cols="24" :x-gap="18">
-        <n-form-item-grid-item :span="24" label="Nama Tarian" path="dance_id" :feedback="feedback('dance_id')"
-          :validation-status="error('dance_id')">
-          <n-select :options="danceOptions" v-model:value="formModel.dance_id"
-            placeholder="Pilih Tarian" />
-        </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Bagian Tari" path="dance_part_id" :feedback="feedback('dance_part_id')"
-          :validation-status="error('dance_part_id')">
-          <n-select :options="dancePartOptions" v-model:value="formModel.dance_part_id"
-            placeholder="Pilih Bagian Tari" />
+        <n-form-item-grid-item :span="24" label="Nama" path="name" :feedback="feedback('name')"
+          :validation-status="error('name')">
+          <n-input v-model:value="formModel.name" placeholder="Masukkan nama" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Gambar" path="picture" :feedback="feedback('picture')"
           :validation-status="error('picture')">
@@ -164,10 +142,6 @@ watch(
               <n-button>Select File</n-button>
             </n-upload>
           </n-space>
-        </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Nama" path="name" :feedback="feedback('name')"
-          :validation-status="error('name')">
-          <n-input v-model:value="formModel.name" placeholder="Masukkan nama" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Deskripsi" path="description" :feedback="feedback('description')"
           :validation-status="error('description')">

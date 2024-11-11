@@ -3,9 +3,30 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
+import { useDanceStore } from '@/store/dance'
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
+
+const API_URL = import.meta.env.VITE_API_URL
+const danceStore = useDanceStore()
+const { dances } = storeToRefs(danceStore)
+
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 30, 50],
+  onChange: (page: number) => {
+    pagination.page = page
+    getDanceList()
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    pagination.pageSize = pageSize
+    pagination.page = 1
+    getDanceList()
+  },
+})
 
 const initialModel = {
   condition_1: '',
@@ -15,10 +36,7 @@ const initialModel = {
 const model = ref({ ...initialModel })
 
 const formRef = ref<FormInst | null>()
-function sendMail(id?: number) {
-  window.$message.success(`Hapus pengguna id :${id}`)
-}
-const columns: DataTableColumns<Entity.User> = [
+const columns: DataTableColumns<Entity.Dance> = [
   {
     title: 'ID',
     align: 'left',
@@ -27,22 +45,28 @@ const columns: DataTableColumns<Entity.User> = [
   {
     title: 'Nama',
     align: 'center',
-    key: 'userName',
-  },
-  {
-    title: 'Jenis Tari',
-    align: 'center',
-    key: 'jenisTari',
+    key: 'name',
   },
   {
     title: 'Gambar',
     align: 'center',
-    key: 'gambar',
+    key: 'picture',
+    render: (row) => {
+      return (<>
+        {
+          row.picture ?
+            <n-image width="50" src={`${API_URL}/storage/${row.picture}`}
+            /> : '-'
+        }
+      </>)
+    },
   },
   {
-    title: 'Keterangan',
+    title: 'Deskripsi',
     align: 'center',
-    key: 'keterangan',
+    key: 'description',
+    ellipsis: true,
+    render: (row) => row.description ?? '-',
   },
   {
     title: 'Aksi',
@@ -57,7 +81,11 @@ const columns: DataTableColumns<Entity.User> = [
           >
             Edit
           </NButton>
-          <NPopconfirm onPositiveClick={() => sendMail(row.id)}>
+          <NPopconfirm onPositiveClick={async () => {
+            const res = await danceStore.destroy(row.id!)
+            window.$message.success(res?.data.message)
+            getDanceList()
+          }}>
             {{
               default: () => 'Yakin ingin menghapus?',
               trigger: () => <NButton size="small">Hapus</NButton>,
@@ -69,43 +97,37 @@ const columns: DataTableColumns<Entity.User> = [
   },
 ]
 
-const listData = ref<Entity.User[]>([])
-
 onMounted(() => {
-  getUserList()
+  getDanceList()
 })
 
-async function getUserList() {
+const getDanceList = async () => {
   startLoading()
-  // await fetchUserPage().then((res: any) => {
-  //   listData.value = res.data.list
-  //   endLoading()
-  // })
+  await danceStore.all({ page: pagination.page, pageSize: pagination.pageSize })
+  endLoading()
 }
-function changePage(page: number, size: number) {
-  window.$message.success(`paginator:${page},${size}`)
-}
-function handleResetSearch() {
+
+const handleResetSearch = () => {
   model.value = { ...initialModel }
 }
 
-  type ModalType = 'add' | 'edit'
+type ModalType = 'add' | 'edit'
 const modalType = ref<ModalType>('add')
-function setModalType(type: ModalType) {
+const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
-const editData = ref<Entity.User | null>(null)
-function setEditData(data: Entity.User | null) {
+const editData = ref<Entity.Dance | null>(null)
+const setEditData = (data: Entity.Dance | null) => {
   editData.value = data
 }
 
-function handleEditTable(row: Entity.User) {
+const handleEditTable = (row: Entity.Dance) => {
   setEditData(row)
   setModalType('edit')
   openModal()
 }
-function handleAddTable() {
+const handleAddTable = () => {
   openModal()
   setModalType('add')
 }
@@ -120,7 +142,7 @@ function handleAddTable() {
             <n-input v-model:value="model.condition_1" placeholder="Masukkan nama" />
           </n-form-item>
           <n-flex class="ml-auto">
-            <NButton type="primary" @click="getUserList">
+            <NButton type="primary" @click="getDanceList">
               <template #icon>
                 <icon-park-outline-search />
               </template>
@@ -158,9 +180,8 @@ function handleAddTable() {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="listData" :loading="loading" />
-        <Pagination :count="100" @change="changePage" />
-        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" />
+        <n-data-table :columns="columns" :data="dances" :loading="loading" :pagination="pagination" />
+        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getDanceList"/>
       </NSpace>
     </n-card>
   </NSpace>
