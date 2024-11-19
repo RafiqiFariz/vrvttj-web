@@ -18,7 +18,11 @@ export function createUser(data: Entity.User) {
   return axios.post(`${API_URL}/users`, data)
 }
 
-export function updateUser(id: string, data: Partial<Entity.User>) {
+export function showUser(id: number) {
+  return axios.get(`${API_URL}/users/${id}`)
+}
+
+export function updateUser(id: number, data: Partial<Entity.User>) {
   return axios.put(`${API_URL}/users/${id}`, data)
 }
 

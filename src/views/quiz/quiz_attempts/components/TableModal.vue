@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useQuizStore } from '@/store/quiz';
+import { useQuizAttemptStore } from '@/store/quiz_attempt';
 import { useQuizQuestionStore } from '@/store/quiz_question';
+import { useStudentAnswerStore } from '@/store/student_answer';
 
 interface Props {
   visible: boolean
@@ -14,31 +15,21 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
-const quizStore = useQuizStore()
+const studentAnswerStore = useStudentAnswerStore()
+const quizAttemptStore = useQuizAttemptStore()
 const quizQuestionStore = useQuizQuestionStore()
-const { quizzesOptions } = storeToRefs(quizStore)
-const { errors } = storeToRefs(quizQuestionStore)
+const { errors, studentAnswers } = storeToRefs(studentAnswerStore)
+const { quizAttemptOptions } = storeToRefs(quizAttemptStore)
+const { quizQuestionOptions } = storeToRefs(quizQuestionStore)
 
-const defaultFormModal: Entity.QuizQuestion = reactive({
-  quiz_id: null,
-  question: '',
-  weight: 0,
-  options: [{ answer: '', is_correct: false }],
-})
+const defaultFormModal: Entity.StudentAnswer = {
+  quiz_attempt_id: null,
+  quiz_question_id: null,
+  quiz_option_id: null,
+  is_correct: false,
+}
 
 const formModel = ref({ ...defaultFormModal })
-
-const removeItem = (index: number) => {
-  if (formModel.value.options) {
-    formModel.value.options.splice(index, 1)
-  }
-}
-
-const addItem = () => {
-  if (formModel.value.options) {
-    formModel.value.options.push({ answer: '', is_correct: false })
-  }
-}
 
 interface Emits {
   (e: 'update:visible', visible: boolean): void
@@ -61,8 +52,8 @@ const closeModal = (visible = false) => {
 type ModalType = 'add' | 'edit'
 const title = computed(() => {
   const titles: Record<ModalType, string> = {
-    add: 'Tambah Pertanyaan Kuis',
-    edit: 'Edit Pertanyaan Kuis',
+    add: 'Tambah Jawaban Mahasiswa',
+    edit: 'Edit Jawaban Mahasiswa',
   }
   return titles[type]
 })
@@ -80,9 +71,9 @@ const UpdateFormModelByModalType = () => {
   handlers[type]()
 }
 
-const createQuizQuestionData = async () => {
+const createStudentAnswerData = async () => {
   console.log(formModel.value)
-  const res = await quizQuestionStore.create(formModel.value)
+  const res = await studentAnswerStore.create(formModel.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -90,13 +81,13 @@ const createQuizQuestionData = async () => {
   }
 }
 
-const updateQuizQuestionData = async () => {
+const updateStudentAnswerData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
 
-  const res = await quizQuestionStore.update(modalData.id, payload)
+  const res = await studentAnswerStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -106,9 +97,9 @@ const updateQuizQuestionData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createQuizQuestionData()
+    await createStudentAnswerData()
   } else {
-    await updateQuizQuestionData()
+    await updateStudentAnswerData()
   }
 }
 
@@ -121,7 +112,6 @@ const feedback = (path: string) => {
 }
 
 onMounted(() => {
-  quizStore.all({ paginate: false })
 })
 
 watch(
@@ -140,11 +130,15 @@ watch(
   }">
     <n-form label-placement="top" :model="formModel" label-align="left" :label-width="80">
       <n-grid :cols="24" :x-gap="18">
-        <n-form-item-grid-item :span="24" label="Quiz" path="quiz_id" :feedback="feedback('quiz_id')"
-          :validation-status="error('quiz_id')">
-          <n-select :options="quizzesOptions" v-model:value="formModel.quiz_id" placeholder="Pilih Quiz" />
+        <n-form-item-grid-item :span="24" label="Percobaan Kuis" path="quiz_attempt_id" :feedback="feedback('quiz_attempt_id')"
+          :validation-status="error('quiz_attempt_id')">
+          <n-select :options="quizAttemptOptions" v-model:value="formModel.quiz_attempt_id" placeholder="Pilih Quiz" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Pertanyaan" path="question" :feedback="feedback('question')"
+        <n-form-item-grid-item :span="24" label="Pertanyaan Kuis" path="quiz_question_id" :feedback="feedback('quiz_question_id')"
+          :validation-status="error('quiz_question_id')">
+          <n-select :options="quizAttemptOptions" v-model:value="formModel.quiz_attempt_id" placeholder="Pilih Quiz" />
+        </n-form-item-grid-item>
+        <!-- <n-form-item-grid-item :span="24" label="Pertanyaan" path="question" :feedback="feedback('question')"
           :validation-status="error('question')">
           <n-input v-model:value="formModel.question" placeholder="Masukkan pertanyaan" />
         </n-form-item-grid-item>
@@ -176,7 +170,7 @@ watch(
           <n-button attr-type="button" @click="addItem" :disabled="formModel.options?.length === 5">
             Tambah Pilihan
           </n-button>
-        </n-form-item-grid-item>
+        </n-form-item-grid-item> -->
       </n-grid>
     </n-form>
     <template #action>

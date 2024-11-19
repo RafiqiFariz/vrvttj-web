@@ -7,6 +7,7 @@ namespace Entity {
     question: string
     weight: number
     quiz?: Entity.Quiz | null
+    options?: Entity.QuizOption[]
     created_at?: string
     updated_at?: string
   }

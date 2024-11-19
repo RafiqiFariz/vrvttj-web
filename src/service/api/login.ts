@@ -15,6 +15,10 @@ export async function fetchLogin(data: Ilogin) {
   return await axios.get('/user')
 }
 
+export async function getAuthenticatedUser() {
+  return await axios.get('/user')
+}
+
 export function fetchUpdateToken(data: any) {
   const method = request.Post<Service.ResponseResult<Api.Login.Info>>('/updateToken', data)
   method.meta = {

@@ -3,8 +3,7 @@
 /** 用户数据库表字段 */
 namespace Entity {
   interface User {
-    id?: number
-    username?: string
+    id?: number | null
     photo?: string | null
     gender?: number | string | null
     nim?: string | null,
@@ -14,7 +13,7 @@ namespace Entity {
     password_confirmation?: string
     name: string
     phone?: string | null
-    role_id: string
+    role_id: string | null
     date_of_birth?: string | null
     place_of_birth?: string | null
     religion?: string | null

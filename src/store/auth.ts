@@ -2,16 +2,16 @@ import { router } from '@/router'
 import { local } from '@/utils'
 import { useRouteStore } from './router'
 import { useTabStore } from './tab'
-import { fetchLogin } from '@/service'
+import { fetchLogin, getAuthenticatedUser } from '@/service'
 
 interface AuthStatus {
-  user: null
+  user: Entity.User | null
 }
 
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthStatus => {
     return {
-      user: local.get('user'),
+      user: local.get('user') as Entity.User | null,
     }
   },
   getters: {
@@ -51,6 +51,21 @@ export const useAuthStore = defineStore('auth-store', {
       local.remove('user')
     },
 
+    async fetchUser() {
+      try {
+        const user = await getAuthenticatedUser()
+        if (!user?.data)
+          return
+
+        this.user = user.data
+        this.clearAuthStorage()
+        local.set('user', user.data)
+      }
+      catch (e) {
+        console.warn('[Fetch User Error]:', e)
+      }
+    },
+
     async login(email: string, password: string) {
       try {
         const user = await fetchLogin({ email, password })
@@ -58,7 +73,7 @@ export const useAuthStore = defineStore('auth-store', {
         if (!user?.data)
           return
 
-        await this.handleLoginInfo(user)
+        await this.handleLoginInfo(user.data)
       }
       catch (e) {
         console.warn('[Login Error]:', e)

@@ -1,34 +1,15 @@
 <script setup lang="ts">
+import { useDashboardStore } from '@/store/dashboard';
 import Chart from './components/chart.vue'
 import Chart2 from './components/chart2.vue'
-import Chart3 from './components/chart3.vue'
 
-const tableData = [
-  {
-    id: 0,
-    name: '商品名称1',
-    start: '2022-02-02',
-    end: '2022-02-02',
-    prograss: '100',
-    status: '已完成',
-  },
-  {
-    id: 0,
-    name: '商品名称2',
-    start: '2022-02-02',
-    end: '2022-02-02',
-    prograss: '50',
-    status: '交易中',
-  },
-  {
-    id: 0,
-    name: '商品名称3',
-    start: '2022-02-02',
-    end: '2022-02-02',
-    prograss: '100',
-    status: '已完成',
-  },
-]
+const dashboardStore = useDashboardStore()
+const { data } = storeToRefs(dashboardStore)
+
+onMounted(() => {
+  dashboardStore.fetchData()
+  console.log(data)
+})
 </script>
 
 <template>
@@ -46,7 +27,7 @@ const tableData = [
             <n-statistic label="Mahasiswa">
               <n-number-animation
                 :from="0"
-                :to="200"
+                :to="data.students ?? 0"
                 show-separator
               />
             </n-statistic>
@@ -68,7 +49,7 @@ const tableData = [
             <n-statistic label="Jenis Tari">
               <n-number-animation
                 :from="0"
-                :to="12"
+                :to="data.dance_types ?? 0"
                 show-separator
               />
             </n-statistic>
@@ -90,7 +71,7 @@ const tableData = [
             <n-statistic label="Gerak Tari">
               <n-number-animation
                 :from="0"
-                :to="60"
+                :to="data.dance_moves ?? 0"
                 show-separator
               />
             </n-statistic>
@@ -112,7 +93,7 @@ const tableData = [
             <n-statistic label="Busana Tari">
               <n-number-animation
                 :from="0"
-                :to="20"
+                :to="data.dance_clothes ?? 0"
                 show-separator
               />
             </n-statistic>

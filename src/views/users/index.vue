@@ -3,12 +3,14 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { DocumentData } from 'firebase/firestore'
-import { deleteUser, fetchUserList } from '@/service/api/user'
 import * as _ from 'lodash'
+import { useUserStore } from '@/store/user'
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
+
+const userStore = useUserStore()
+const { users } = storeToRefs(userStore)
 
 const pagination = reactive({
   page: 1,
@@ -98,11 +100,10 @@ const columns: DataTableColumns<Entity.User> = [
             Edit
           </NButton>
           {row.role?.id != '1' && (
-            <NPopconfirm onPositiveClick={() => {
-              deleteUser(row.id!).then((res) => {
-                window.$message.success(res.data.message)
-                getUserList()
-              })
+            <NPopconfirm onPositiveClick={async () => {
+              const res = await userStore.destroy(row.id!)
+              window.$message.success(res?.data.message)
+              getUserList()
             }}>
               {{
                 default: () => 'Yakin ingin menghapus?',
@@ -116,23 +117,13 @@ const columns: DataTableColumns<Entity.User> = [
   },
 ]
 
-const listData = ref<DocumentData[]>([])
-
 onMounted(() => {
   getUserList()
 })
 
 const getUserList = async () => {
   startLoading()
-
-  const res: any = await fetchUserList({ page: pagination.page, pageSize: pagination.pageSize })
-
-  if (res.data.length > 0) {
-    listData.value = res.data
-  } else {
-    listData.value = []
-  }
-
+  await userStore.all({ page: pagination.page, includeRole: true, pageSize: pagination.pageSize, })
   endLoading()
 }
 
@@ -216,7 +207,7 @@ const handleAddTable = () => {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="listData" :loading="loading" :pagination="pagination" />
+        <n-data-table :columns="columns" :data="users" :loading="loading" :pagination="pagination" />
         <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getUserList" />
       </NSpace>
     </n-card>

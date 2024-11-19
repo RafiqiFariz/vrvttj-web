@@ -99,12 +99,12 @@ function checkUserAccount() {
         <n-button block type="primary" size="large" :loading="isLoading" :disabled="isLoading" @click="handleLogin">
           {{ $t('login.signIn') }}
         </n-button>
-        <n-flex>
+        <!-- <n-flex>
           <n-text>{{ $t('login.noAccountText') }}</n-text>
           <n-button type="primary" text @click="toOtherForm('register')">
             {{ $t('login.signUp') }}
           </n-button>
-        </n-flex>
+        </n-flex> -->
       </n-space>
     </n-form>
   </div>

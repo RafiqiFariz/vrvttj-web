@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useQuizOptionStore } from '@/store/quiz_option';
-import { useQuizQuestionStore } from '@/store/quiz_question';
+import { useQuizStore } from '@/store/quiz';
 
 interface Props {
   visible: boolean
@@ -14,16 +13,14 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
-const quizQuestionStore = useQuizQuestionStore()
-const quizOptionStore = useQuizOptionStore()
-const { errors } = storeToRefs(quizOptionStore)
-const { quizQuestionOptions } = storeToRefs(quizQuestionStore)
+const quizStore = useQuizStore()
+const { errors } = storeToRefs(quizStore)
 
-const defaultFormModal: Entity.QuizOption = {
-  quiz_question_id: null,
-  answer: '',
-  is_correct: false,
-}
+const defaultFormModal: Entity.Quiz = reactive({
+  title: '',
+  description: '',
+})
+
 const formModel = ref({ ...defaultFormModal })
 
 interface Emits {
@@ -43,13 +40,14 @@ const modalVisible = computed({
 const closeModal = (visible = false) => {
   emit('update:visible', visible)
   errors.value = {}
+  formModel.value = { ...defaultFormModal }
 }
 
 type ModalType = 'add' | 'edit'
 const title = computed(() => {
   const titles: Record<ModalType, string> = {
-    add: 'Tambah Jawaban Kuis',
-    edit: 'Edit Jawaban Kuis',
+    add: 'Tambah Kuis',
+    edit: 'Edit Kuis',
   }
   return titles[type]
 })
@@ -67,8 +65,9 @@ const UpdateFormModelByModalType = () => {
   handlers[type]()
 }
 
-const createQuizOptionData = async () => {
-  const res = await quizOptionStore.create(formModel.value)
+const createQuizData = async () => {
+  console.log(formModel.value)
+  const res = await quizStore.create(formModel.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -76,13 +75,13 @@ const createQuizOptionData = async () => {
   }
 }
 
-const updateQuizOptionData = async () => {
+const updateQuizData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
 
-  const res = await quizOptionStore.update(modalData.id, payload)
+  const res = await quizStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -92,9 +91,9 @@ const updateQuizOptionData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createQuizOptionData()
+    await createQuizData()
   } else {
-    await updateQuizOptionData()
+    await updateQuizData()
   }
 }
 
@@ -105,10 +104,6 @@ const error = (path: string) => {
 const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
 }
-
-onMounted(() => {
-  quizQuestionStore.all({ paginate: false })
-})
 
 watch(
   () => visible,
@@ -124,29 +119,18 @@ watch(
     content: true,
     action: true,
   }">
-    <n-form label-placement="left" :model="formModel" label-align="left" :label-width="80">
+    <n-form label-placement="top" :model="formModel" label-align="left" :label-width="80">
       <n-grid :cols="24" :x-gap="18">
-        <n-form-item-grid-item :span="24" label="Question" path="quiz_question_id"
-          :feedback="feedback('quiz_question_id')" :validation-status="error('quiz_question_id')">
-          <n-select :options="quizQuestionOptions" v-model:value="formModel.quiz_question_id"
-            placeholder="Pilih Pertanyaan" />
+        <n-form-item-grid-item :span="24" label="Judul" path="title" :feedback="feedback('title')"
+          :validation-status="error('title')">
+          <n-input v-model:value="formModel.title" placeholder="Masukkan judul" />
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Jawaban" path="answer" :feedback="feedback('answer')"
-          :validation-status="error('answer')">
-          <n-input v-model:value="formModel.answer" placeholder="Masukkan pilihan jawaban" />
-        </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Status Kebenaran" path="is_correct" :feedback="feedback('is_correct')"
-          :validation-status="error('is_correct')">
-          <n-space>
-            <n-switch v-model:value="formModel.is_correct" :checked-value="1" :unchecked-value="0">
-              <template #checked>
-                True
-              </template>
-              <template #unchecked>
-                False
-              </template>
-            </n-switch>
-          </n-space>
+        <n-form-item-grid-item :span="24" label="Deskripsi" path="description" :feedback="feedback('description')"
+          :validation-status="error('description')">
+          <n-input v-model:value="formModel.description" type="textarea" placeholder="Masukkan deskripsi" :autosize="{
+            minRows: 3,
+            maxRows: 5,
+          }" />
         </n-form-item-grid-item>
       </n-grid>
     </n-form>

@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import type { DataTableColumns, FormInst } from 'naive-ui'
+import type { DataTableColumns } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
@@ -27,14 +27,6 @@ const pagination = reactive({
   },
 })
 
-const initialModel = {
-  condition_1: '',
-  condition_2: '1',
-  condition_3: '',
-}
-const model = ref({ ...initialModel })
-
-const formRef = ref<FormInst | null>()
 const columns: DataTableColumns<Entity.QuizOption> = [
   {
     title: 'ID',
@@ -106,10 +98,6 @@ const getQuizOptionList = async () => {
   endLoading()
 }
 
-const handleResetSearch = () => {
-  model.value = { ...initialModel }
-}
-
 type ModalType = 'add' | 'edit'
 const modalType = ref<ModalType>('add')
 const setModalType = (type: ModalType) => {
@@ -135,36 +123,6 @@ const handleAddTable = () => {
 
 <template>
   <NSpace vertical size="large">
-    <n-card>
-      <n-form ref="formRef" :model="model" label-placement="left" inline :show-feedback="false">
-        <n-flex>
-          <n-form-item label="Nama" path="condition_1">
-            <n-input v-model:value="model.condition_1" placeholder="Masukkan nama mahasiswa" />
-          </n-form-item>
-          <n-form-item label="Quiz" path="condition_2">
-            <n-select :options="[{ label: 'Quiz 1', value: '1' }]" v-model:value="model.condition_2"
-              placeholder="Pilih Quiz" />
-          </n-form-item>
-          <n-form-item label="Skor" path="condition_3">
-            <n-input v-model:value="model.condition_3" placeholder="Masukkan skor" />
-          </n-form-item>
-          <n-flex class="ml-auto">
-            <NButton type="primary" @click="getQuizOptionList">
-              <template #icon>
-                <icon-park-outline-search />
-              </template>
-              Cari
-            </NButton>
-            <NButton strong secondary @click="handleResetSearch">
-              <template #icon>
-                <icon-park-outline-redo />
-              </template>
-              Reset
-            </NButton>
-          </n-flex>
-        </n-flex>
-      </n-form>
-    </n-card>
     <n-card>
       <NSpace vertical size="large">
         <div class="flex gap-4">

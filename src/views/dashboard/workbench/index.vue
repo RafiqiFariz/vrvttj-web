@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/store'
+import { useAuthStore } from '@/store';
 import Chart from './components/chart.vue'
+import { useDashboardStore } from '@/store/dashboard';
 
-const { userInfo } = useAuthStore()
+const { user } = useAuthStore()
+const { data } = useDashboardStore()
 </script>
 
 <template>
@@ -112,7 +114,7 @@ const { userInfo } = useAuthStore()
                 <n-avatar
                   round
                   :size="48"
-                  :src="userInfo?.avatar"
+                  :src="user?.photo!"
                 />
               </template>
               <n-thing
@@ -126,7 +128,7 @@ const { userInfo } = useAuthStore()
                 <n-avatar
                   round
                   :size="48"
-                  :src="userInfo?.avatar"
+                  :src="user?.photo!"
                 />
               </template>
               <n-thing
@@ -140,7 +142,7 @@ const { userInfo } = useAuthStore()
                 <n-avatar
                   round
                   :size="48"
-                  :src="userInfo?.avatar"
+                  :src="user?.photo!"
                 />
               </template>
               <n-thing
@@ -154,7 +156,7 @@ const { userInfo } = useAuthStore()
                 <n-avatar
                   round
                   :size="48"
-                  :src="userInfo?.avatar"
+                  :src="user?.photo!"
                 />
               </template>
               <n-thing

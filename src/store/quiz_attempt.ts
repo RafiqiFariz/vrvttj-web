@@ -1,37 +1,39 @@
-import { createQuiz, deleteQuiz, fetchQuizList, showQuiz, updateQuiz } from '@/service';
+import { createQuizAttempt, deleteQuizAttempt, fetchQuizAttemptList, showQuizAttempt, updateQuizAttempt } from '@/service';
 import { defineStore } from 'pinia';
 
-export const useQuizStore = defineStore('quiz', {
+export const useQuizAttemptStore = defineStore('quizAttempt', {
   state: () => ({
-    quizzes: [] as Entity.Quiz[],
-    quiz: {} as Entity.Quiz,
+    quizAttempts: [] as Entity.QuizAttempt[],
+    quizAttempt: {} as Entity.QuizAttempt,
     errors: {} as Record<string, string[]>,
   }),
   actions: {
     async all(params: {
       page?: number,
       paginate?: boolean,
+      includeQuiz?: boolean,
+      includeStudent?: boolean,
       pageSize?: number,
     } = {}
     ) {
       try {
-        const response = await fetchQuizList(params);
-        this.quizzes = response.data;
+        const response = await fetchQuizAttemptList(params);
+        this.quizAttempts = response.data;
       } catch (error: any) {
         console.error(error);
       }
     },
     async show(id: number) {
       try {
-        const response = await showQuiz(id);
-        this.quiz = response.data;
+        const response = await showQuizAttempt(id);
+        this.quizAttempt = response.data;
       } catch (error: any) {
         console.error(error);
       }
     },
-    async create(data: Entity.Quiz) {
+    async create(data: Entity.QuizAttempt) {
       try {
-        const response = await createQuiz(data);
+        const response = await createQuizAttempt(data);
         window.$message.success(response.data.message);
         return response;
       } catch (error: any) {
@@ -39,9 +41,9 @@ export const useQuizStore = defineStore('quiz', {
         console.error(error);
       }
     },
-    async update(id: number, data: Partial<Entity.Quiz>) {
+    async update(id: number, data: Partial<Entity.QuizAttempt>) {
       try {
-        const response = await updateQuiz(id, data);
+        const response = await updateQuizAttempt(id, data);
         window.$message.success(response.data.message);
         return response;
       } catch (error: any) {
@@ -51,21 +53,21 @@ export const useQuizStore = defineStore('quiz', {
     },
     async destroy(id: number) {
       try {
-        const response = await deleteQuiz(id);
+        const response = await deleteQuizAttempt(id);
         return response;
       } catch (error: any) {
         console.error(error);
       }
     },
     clear() {
-      this.quizzes = [];
+      this.quizAttempts = [];
     },
   },
   getters: {
-    total: (state) => state.quizzes.length,
-    quizzesOptions: (state) => state.quizzes.map((quiz) => ({
-      value: quiz.id,
-      label: quiz.title,
+    total: (state) => state.quizAttempts.length,
+    quizAttemptOptions: (state) => state.quizAttempts.map((quizAttempt) => ({
+      value: quizAttempt.id,
+      label: `Quiz Attempt ${quizAttempt.id}`,
     })),
   },
 });

@@ -1,18 +1,15 @@
 <script setup lang="tsx">
-import type { DataTableColumns, FormInst } from 'naive-ui'
+import type { DataTableColumns } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { useQuizQuestionStore } from '@/store/quiz_question'
 import { useQuizStore } from '@/store/quiz'
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
 
 const quizStore = useQuizStore()
-const quizQuestionStore = useQuizQuestionStore()
-const { quizzesOptions } = storeToRefs(quizStore)
-const { quizQuestions } = storeToRefs(quizQuestionStore)
+const { quizzes } = storeToRefs(quizStore)
 
 const pagination = reactive({
   page: 1,
@@ -21,43 +18,30 @@ const pagination = reactive({
   pageSizes: [10, 20, 30, 50],
   onChange: (page: number) => {
     pagination.page = page
-    getQuizQuestionList()
+    getQuizList()
   },
   onUpdatePageSize: (pageSize: number) => {
     pagination.pageSize = pageSize
     pagination.page = 1
-    getQuizQuestionList()
+    getQuizList()
   },
 })
 
-const initialModel = {
-  condition_1: 1,
-  condition_2: '',
-}
-const model = ref({ ...initialModel })
-
-const formRef = ref<FormInst | null>()
-
-const columns: DataTableColumns<Entity.QuizQuestion> = [
+const columns: DataTableColumns<Entity.Quiz> = [
   {
     title: 'ID',
     align: 'center',
     key: 'id',
   },
   {
-    title: 'Judul Quiz',
+    title: 'Judul',
     align: 'center',
-    key: 'quiz.title',
+    key: 'title',
   },
   {
-    title: 'Pertanyaan',
+    title: 'Deskripsi',
     align: 'center',
-    key: 'question',
-  },
-  {
-    title: 'Bobot',
-    align: 'center',
-    key: 'weight',
+    key: 'description',
   },
   {
     title: 'Aksi',
@@ -73,9 +57,9 @@ const columns: DataTableColumns<Entity.QuizQuestion> = [
             Edit
           </NButton>
           <NPopconfirm onPositiveClick={async () => {
-            const res = await quizQuestionStore.destroy(row.id!)
+            const res = await quizStore.destroy(row.id!)
             window.$message.success(res?.data.message)
-            getQuizQuestionList()
+            getQuizList()
           }}>
             {{
               default: () => 'Yakin ingin menghapus?',
@@ -89,18 +73,13 @@ const columns: DataTableColumns<Entity.QuizQuestion> = [
 ]
 
 onMounted(() => {
-  quizStore.all({ paginate: false })
-  getQuizQuestionList()
+  getQuizList()
 })
 
-const getQuizQuestionList = async () => {
+const getQuizList = async () => {
   startLoading()
-  await quizQuestionStore.all({ page: pagination.page, includeQuiz: true, includeOptions: true, pageSize: pagination.pageSize })
+  await quizStore.all({ page: pagination.page, pageSize: pagination.pageSize })
   endLoading()
-}
-
-const handleResetSearch = () => {
-  model.value = { ...initialModel }
 }
 
 type ModalType = 'add' | 'edit'
@@ -109,12 +88,12 @@ const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
-const editData = ref<Entity.QuizQuestion | null>(null)
-const setEditData = (data: Entity.QuizQuestion | null) => {
+const editData = ref<Entity.Quiz | null>(null)
+const setEditData = (data: Entity.Quiz | null) => {
   editData.value = data
 }
 
-const handleEditTable = (row: Entity.QuizQuestion) => {
+const handleEditTable = (row: Entity.Quiz) => {
   setEditData(row)
   setModalType('edit')
   openModal()
@@ -128,32 +107,6 @@ const handleAddTable = () => {
 
 <template>
   <NSpace vertical size="large">
-    <n-card>
-      <n-form ref="formRef" :model="model" label-placement="left" inline :show-feedback="false">
-        <n-flex>
-          <n-form-item label="Quiz" path="condition_1">
-            <n-select :options="quizzesOptions" v-model:value="model.condition_1" placeholder="Pilih Quiz" />
-          </n-form-item>
-          <n-form-item label="Bobot" path="condition_2">
-            <n-input v-model:value="model.condition_2" placeholder="Masukkan bobot" />
-          </n-form-item>
-          <n-flex class="ml-auto">
-            <NButton type="primary" @click="getQuizQuestionList">
-              <template #icon>
-                <icon-park-outline-search />
-              </template>
-              Cari
-            </NButton>
-            <NButton strong secondary @click="handleResetSearch">
-              <template #icon>
-                <icon-park-outline-redo />
-              </template>
-              Reset
-            </NButton>
-          </n-flex>
-        </n-flex>
-      </n-form>
-    </n-card>
     <n-card>
       <NSpace vertical size="large">
         <div class="flex gap-4">
@@ -176,9 +129,8 @@ const handleAddTable = () => {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="quizQuestions" :loading="loading" :pagination="pagination" />
-        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData"
-          @fetch-data="getQuizQuestionList" />
+        <n-data-table :columns="columns" :data="quizzes" :loading="loading" :pagination="pagination" />
+        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getQuizList" />
       </NSpace>
     </n-card>
   </NSpace>
