@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store'
 import { useUserStore } from '@/store/user';
+import moment from 'moment'
 
 const authStore = useAuthStore()
 const userStore = useUserStore()
@@ -31,7 +32,7 @@ const formValue = ref({
   password_confirmation: '',
   religion: user?.value?.religion ?? null,
   place_of_birth: user?.value?.place_of_birth ?? '',
-  date_of_birth: user?.value?.date_of_birth ?? '',
+  date_of_birth: moment(user?.value?.date_of_birth).format('YYYY-MM-DD') ?? '',
   role_id: user?.value?.role_id ?? null,
   address: user?.value?.address ?? '',
 })

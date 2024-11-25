@@ -6,6 +6,7 @@ import { local } from '@/utils'
 const emit = defineEmits(['update:modelValue'])
 
 const authStore = useAuthStore()
+const { errors } = storeToRefs(authStore)
 
 function toOtherForm(type: any) {
   emit('update:modelValue', type)
@@ -14,12 +15,12 @@ function toOtherForm(type: any) {
 const { t } = useI18n()
 const rules = computed(() => {
   return {
-    account: {
+    email: {
       required: true,
       trigger: 'blur',
       message: t('login.accountRuleTip'),
     },
-    pwd: {
+    password: {
       required: true,
       trigger: 'blur',
       message: t('login.passwordRuleTip'),
@@ -53,6 +54,14 @@ function handleLogin() {
   })
 }
 
+const error = (path: string) => {
+  return errors.value[path] ? 'error' : undefined
+}
+
+const feedback = (path: string) => {
+  return errors.value[path] ? errors.value[path][0] : ''
+}
+
 onMounted(() => {
   checkUserAccount()
 })
@@ -73,10 +82,10 @@ function checkUserAccount() {
       {{ $t('login.signInTitle') }}
     </n-h2>
     <n-form ref="formRef" :rules="rules" :model="formValue" :show-label="false" size="large">
-      <n-form-item path="email">
+      <n-form-item path="email" :feedback="feedback('email')" :validation-status="error('email')">
         <n-input v-model:value="formValue.email" clearable :placeholder="$t('login.emailPlaceholder')" />
       </n-form-item>
-      <n-form-item path="password">
+      <n-form-item path="password" :feedback="feedback('password')" :validation-status="error('password')">
         <n-input v-model:value="formValue.password" type="password" :placeholder="$t('login.passwordPlaceholder')"
           clearable show-password-on="click">
           <template #password-invisible-icon>

@@ -502,6 +502,7 @@ export const staticRoutes: AppRoute.RowRoute[] = [
     requiresAuth: true,
     icon: 'carbon:user-avatar-filled-alt',
     componentPath: '/user_center/index.vue',
+    menuType: 'page',
     id: 16,
     pid: null,
   },

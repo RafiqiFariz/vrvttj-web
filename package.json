@@ -1,21 +1,21 @@
 {
-  "name": "nova-admin",
+  "name": "vrttj-admin",
   "type": "module",
-  "version": "0.9.8",
+  "version": "1.0.0",
   "private": true,
-  "description": "a clean and concise back-end management template based on Vue3, Vite5, Typescript, and Naive UI.",
+  "description": "admin panel for vrttj",
   "author": {
-    "name": "chansee97",
-    "email": "chen.dev@foxmail.com",
-    "url": "https://github.com/chansee97"
+    "name": "farizrafiqi",
+    "email": "auliaelihza@gmail.com",
+    "url": "https://github.com/RafiqiFariz"
   },
   "license": "MIT",
-  "homepage": "https://github.com/chansee97/nova-admin",
+  "homepage": "https://github.com/RafiqiFariz/vrvttj-web",
   "repository": {
-    "url": "https://github.com/chansee97/nova-admin.git"
+    "url": "https://github.com/RafiqiFariz/vrvttj-web.git"
   },
   "bugs": {
-    "url": "https://github.com/chansee97/nova-admin/issues"
+    "url": "https://github.com/RafiqiFariz/vrvttj-web/issues"
   },
   "keywords": [
     "Vue",

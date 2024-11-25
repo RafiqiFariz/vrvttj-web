@@ -6,12 +6,14 @@ import { fetchLogin, getAuthenticatedUser } from '@/service'
 
 interface AuthStatus {
   user: Entity.User | null
+  errors: Record<string, string[]>
 }
 
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthStatus => {
     return {
       user: local.get('user') as Entity.User | null,
+      errors: {} as Record<string, string[]>,
     }
   },
   getters: {
@@ -75,7 +77,8 @@ export const useAuthStore = defineStore('auth-store', {
 
         await this.handleLoginInfo(user.data)
       }
-      catch (e) {
+      catch (e: any) {
+        this.errors = e.response.data.errors;
         console.warn('[Login Error]:', e)
       }
     },

@@ -41,7 +41,7 @@ function handleSelect(key: string | number) {
   }
 
   if (key === 'userCenter')
-    router.push('/userCenter')
+    router.push('/personal-center')
 }
 </script>
 
