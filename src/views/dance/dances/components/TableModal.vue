@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
+import { useDanceTypeStore } from '@/store/dance-type';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -16,6 +17,8 @@ const {
 const emit = defineEmits<Emits>()
 const API_URL = import.meta.env.VITE_API_URL
 const danceStore = useDanceStore()
+const danceTypeStore = useDanceTypeStore()
+const { danceTypeOptions } = storeToRefs(danceTypeStore)
 const { errors } = storeToRefs(danceStore)
 
 const defaultFormModal: Entity.Dance = {
@@ -114,6 +117,10 @@ const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
 }
 
+onMounted(() => {
+  danceTypeStore.all({ paginate: false })
+})
+
 watch(
   () => visible,
   (newValue) => {
@@ -130,6 +137,11 @@ watch(
   }">
     <n-form label-placement="left" :model="formModel" label-align="left" :label-width="80">
       <n-grid :cols="24" :x-gap="18">
+        <n-form-item-grid-item :span="24" label="Jenis Tarian" path="dance_type_id" :feedback="feedback('dance_type_id')"
+          :validation-status="error('dance_type_id')">
+          <n-select :options="danceTypeOptions" v-model:value="formModel.dance_type_id"
+            placeholder="Pilih Jenis Tarian" />
+        </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Nama" path="name" :feedback="feedback('name')"
           :validation-status="error('name')">
           <n-input v-model:value="formModel.name" placeholder="Masukkan nama" />

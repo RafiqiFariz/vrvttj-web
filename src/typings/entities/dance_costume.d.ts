@@ -1,7 +1,7 @@
 /// <reference path="../global.d.ts"/>
 
 namespace Entity {
-  interface DanceClothes {
+  interface DanceCostume {
     id?: number
     dance_id: number | null
     name: string

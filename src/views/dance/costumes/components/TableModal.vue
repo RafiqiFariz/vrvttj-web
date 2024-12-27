@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
-import { useDanceClothesStore } from '@/store/dance-clothes';
+import { useDanceCostumeStore } from '@/store/dance-costume';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -18,12 +20,12 @@ const {
 const emit = defineEmits<Emits>()
 
 const API_URL = import.meta.env.VITE_API_URL
-const danceClothesStore = useDanceClothesStore()
+const danceCostumeStore = useDanceCostumeStore()
 const danceStore = useDanceStore()
-const { errors } = storeToRefs(danceClothesStore)
+const { errors } = storeToRefs(danceCostumeStore)
 const { danceOptions } = storeToRefs(danceStore)
 
-const defaultFormModal: Entity.DanceClothes = {
+const defaultFormModal: Entity.DanceCostume = {
   dance_id: null,
   name: '',
   picture: '',
@@ -88,9 +90,9 @@ const handleAssetChange = (options: { file: UploadFileInfo, fileList: Array<Uplo
   }
 }
 
-const createDanceClothesData = async () => {
+const createDanceCostumeData = async () => {
   console.log(formModel.value)
-  const res = await danceClothesStore.create(formModel.value)
+  const res = await danceCostumeStore.create(formModel.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -98,14 +100,14 @@ const createDanceClothesData = async () => {
   }
 }
 
-const updateDanceClothesData = async () => {
+const updateDanceCostumeData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
   delete payload.dance
 
-  const res = await danceClothesStore.update(modalData.id, payload)
+  const res = await danceCostumeStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -115,9 +117,9 @@ const updateDanceClothesData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createDanceClothesData()
+    await createDanceCostumeData()
   } else {
-    await updateDanceClothesData()
+    await updateDanceCostumeData()
   }
 }
 
@@ -127,6 +129,12 @@ const error = (path: string) => {
 
 const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
+}
+
+const headers = {
+  "Access-Control-Allow-Origin": "no-cors",
+  "Access-Control-Allow-Credentials": "true",
+  "X-XSRF-TOKEN": Cookies.get('XSRF-TOKEN'),
 }
 
 onMounted(() => {
@@ -151,14 +159,14 @@ watch(
       <n-grid :cols="24" :x-gap="18">
         <n-form-item-grid-item :span="24" label="Nama Tarian" path="dance_id" :feedback="feedback('dance_id')"
           :validation-status="error('dance_id')">
-          <n-select :options="danceOptions" v-model:value="formModel.dance_id"
-            placeholder="Pilih Tarian" />
+          <n-select :options="danceOptions" v-model:value="formModel.dance_id" placeholder="Pilih Tarian" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Gambar" path="picture" :feedback="feedback('picture')"
           :validation-status="error('picture')">
           <n-space vertical>
             <n-image width="100" :src="`${API_URL}/storage/${formModel.picture}`" v-if="type === 'edit'" />
-            <n-upload class="w-100" accept=".jpg,.png,.jpeg" :default-upload="false" :max="1" @change="handlePictureChange">
+            <n-upload class="w-100" accept=".jpg,.png,.jpeg" :default-upload="false" :max="1"
+              @change="handlePictureChange">
               <n-button class="w-100">Select File</n-button>
             </n-upload>
           </n-space>
@@ -166,8 +174,11 @@ watch(
         <n-form-item-grid-item :span="24" label="Asset" path="asset_path" :feedback="feedback('asset_path')"
           :validation-status="error('asset_path')">
           <n-space vertical>
-            <n-image width="100" :src="`${API_URL}/storage/${formModel.asset_path}`" v-if="type === 'edit'" />
-            <n-upload class="w-100" accept=".obj,.fbx,.glb,.glTF" :default-upload="false" :max="1" @change="handleAssetChange">
+            <!-- <vue3dLoader :height="200" :filePath="`${API_URL}/storage/${formModel.asset_path}`"
+              :backgroundColor="0xff00ff" crossOrigin="use-credentials" :requestHeader="headers" v-if="type === 'edit'">
+            </vue3dLoader> -->
+            <n-upload class="w-100" accept=".obj,.fbx,.glb,.glTF" :default-upload="false" :max="1"
+              @change="handleAssetChange">
               <n-button class="w-100">Select File</n-button>
             </n-upload>
           </n-space>

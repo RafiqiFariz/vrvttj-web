@@ -3,14 +3,14 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { useDanceClothesStore } from '@/store/dance-clothes';
+import { useDanceCostumeStore } from '@/store/dance-costume';
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
 
 const API_URL = import.meta.env.VITE_API_URL
-const danceClothStore = useDanceClothesStore()
-const { danceClothes } = storeToRefs(danceClothStore)
+const danceCostumeStore = useDanceCostumeStore()
+const { danceCostumes } = storeToRefs(danceCostumeStore)
 
 const pagination = reactive({
   page: 1,
@@ -19,12 +19,12 @@ const pagination = reactive({
   pageSizes: [10, 20, 30, 50],
   onChange: (page: number) => {
     pagination.page = page
-    getDanceClothList()
+    getDanceCostumeList()
   },
   onUpdatePageSize: (pageSize: number) => {
     pagination.pageSize = pageSize
     pagination.page = 1
-    getDanceClothList()
+    getDanceCostumeList()
   },
 })
 
@@ -37,7 +37,7 @@ const model = ref({ ...initialModel })
 
 const formRef = ref<FormInst | null>()
 
-const columns: DataTableColumns<Entity.DanceClothes> = [
+const columns: DataTableColumns<Entity.DanceCostume> = [
   {
     title: 'ID',
     align: 'left',
@@ -92,9 +92,9 @@ const columns: DataTableColumns<Entity.DanceClothes> = [
             Edit
           </NButton>
           <NPopconfirm onPositiveClick={async () => {
-            const res = await danceClothStore.destroy(row.id!)
+            const res = await danceCostumeStore.destroy(row.id!)
             window.$message.success(res?.data.message)
-            getDanceClothList()
+            getDanceCostumeList()
           }}>
             {{
               default: () => 'Yakin ingin menghapus?',
@@ -108,12 +108,13 @@ const columns: DataTableColumns<Entity.DanceClothes> = [
 ]
 
 onMounted(() => {
-  getDanceClothList()
+  getDanceCostumeList()
+  console.log(danceCostumes.value, 'danceCostumes')
 })
 
-const getDanceClothList = async () => {
+const getDanceCostumeList = async () => {
   startLoading()
-  await danceClothStore.all({ page: pagination.page, pageSize: pagination.pageSize })
+  await danceCostumeStore.all({ page: pagination.page, pageSize: pagination.pageSize })
   endLoading()
 }
 
@@ -127,12 +128,12 @@ const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
-const editData = ref<Entity.User | null>(null)
-const setEditData = (data: Entity.User | null) => {
+const editData = ref<Entity.DanceCostume | null>(null)
+const setEditData = (data: Entity.DanceCostume | null) => {
   editData.value = data
 }
 
-const handleEditTable = (row: Entity.User) => {
+const handleEditTable = (row: Entity.DanceCostume) => {
   setEditData(row)
   setModalType('edit')
   openModal()
@@ -153,7 +154,7 @@ const handleAddTable = () => {
             <n-input v-model:value="model.condition_1" placeholder="Masukkan nama" />
           </n-form-item>
           <n-flex class="ml-auto">
-            <NButton type="primary" @click="getDanceClothList">
+            <NButton type="primary" @click="getDanceCostumeList">
               <template #icon>
                 <icon-park-outline-search />
               </template>
@@ -191,9 +192,9 @@ const handleAddTable = () => {
             Download
           </NButton>
         </div>
-        <n-data-table :columns="columns" :data="danceClothes" :loading="loading" :pagination="pagination" />
+        <n-data-table :columns="columns" :data="danceCostumes" :loading="loading" :pagination="pagination" />
         <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData"
-          @fetch-data="getDanceClothList" />
+          @fetch-data="getDanceCostumeList" />
       </NSpace>
     </n-card>
   </NSpace>

@@ -93,7 +93,7 @@ onMounted(() => {
             <n-statistic label="Busana Tari">
               <n-number-animation
                 :from="0"
-                :to="data.dance_clothes ?? 0"
+                :to="data.dance_costumes ?? 0"
                 show-separator
               />
             </n-statistic>

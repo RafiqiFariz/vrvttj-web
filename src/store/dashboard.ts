@@ -6,7 +6,7 @@ interface DashboardState {
     students: number;
     dance_types: number;
     dance_moves: number;
-    dance_clothes: number;
+    dance_costumes: number;
   };
   status: string;
 }

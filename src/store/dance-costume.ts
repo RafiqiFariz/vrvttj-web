@@ -1,10 +1,10 @@
-import { createDanceCloth, deleteDanceCloth, fetchDanceClothList, showDanceCloth, updateDanceCloth } from '@/service';
+import { createDanceCostume, deleteDanceCostume, fetchDanceCostumeList, showDanceCostume, updateDanceCostume } from '@/service';
 import { defineStore } from 'pinia';
 
-export const useDanceClothesStore = defineStore('danceClothes', {
+export const useDanceCostumeStore = defineStore('danceCostume', {
   state: () => ({
-    danceClothes: [] as Entity.DanceClothes[],
-    danceCloth: {} as Entity.DanceClothes,
+    danceCostumes: [] as Entity.DanceCostume[],
+    danceCostume: {} as Entity.DanceCostume,
     errors: {} as Record<string, string[]>,
   }),
   actions: {
@@ -16,23 +16,23 @@ export const useDanceClothesStore = defineStore('danceClothes', {
     } = {}
     ) {
       try {
-        const response = await fetchDanceClothList(params);
-        this.danceClothes = response.data;
+        const response = await fetchDanceCostumeList(params);
+        this.danceCostumes = response.data;
       } catch (error: any) {
         console.error(error);
       }
     },
     async show(id: number) {
       try {
-        const response = await showDanceCloth(id);
-        this.danceCloth = response.data;
+        const response = await showDanceCostume(id);
+        this.danceCostume = response.data;
       } catch (error: any) {
         console.error(error);
       }
     },
-    async create(data: Entity.DanceClothes) {
+    async create(data: Entity.DanceCostume) {
       try {
-        const response = await createDanceCloth(data);
+        const response = await createDanceCostume(data);
         window.$message.success(response.data.message);
         return response;
       } catch (error: any) {
@@ -40,9 +40,9 @@ export const useDanceClothesStore = defineStore('danceClothes', {
         this.errors = error.response.data.errors;
       }
     },
-    async update(id: number, data: Partial<Entity.DanceClothes>) {
+    async update(id: number, data: Partial<Entity.DanceCostume>) {
       try {
-        const response = await updateDanceCloth(id, data);
+        const response = await updateDanceCostume(id, data);
         window.$message.success(response.data.message);
         return response;
       } catch (error: any) {
@@ -52,17 +52,17 @@ export const useDanceClothesStore = defineStore('danceClothes', {
     },
     async destroy(id: number) {
       try {
-        const response = await deleteDanceCloth(id);
+        const response = await deleteDanceCostume(id);
         return response;
       } catch (error: any) {
         console.error(error);
       }
     },
-    clearDanceCloths() {
-      this.danceClothes = [];
+    clearDanceCostumes() {
+      this.danceCostumes = [];
     },
   },
   getters: {
-    totalDanceCloths: (state) => state.danceClothes.length,
+    totalDanceCostumes: (state) => state.danceCostumes.length,
   },
 });

@@ -21,7 +21,7 @@ export function showDance(id: number) {
 export function createDance(data: Entity.Dance) {
   return axios.post(`${API_URL}/dances`, data, {
     headers: {
-      'Content-Type': 'multi/form-data',
+      'Content-Type': 'multipart/form-data',
     },
   })
 }
@@ -29,7 +29,7 @@ export function createDance(data: Entity.Dance) {
 export function updateDance(id: number, data: Partial<Entity.Dance>) {
   return axios.post(`${API_URL}/dances/${id}`, data, {
     headers: {
-      'Content-Type': 'multi/form-data',
+      'Content-Type': 'multipart/form-data',
     },
   })
 }
