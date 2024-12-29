@@ -28,20 +28,23 @@ const pagination = reactive({
   },
 })
 
-const initialModel = {
-  condition_1: '',
-  condition_2: '',
-  condition_3: '',
-}
-const model = ref({ ...initialModel })
+// const initialModel = {
+//   condition_1: '',
+//   condition_2: '',
+//   condition_3: '',
+// }
+// const model = ref({ ...initialModel })
 
-const formRef = ref<FormInst | null>()
+// const formRef = ref<FormInst | null>()
 
 const columns: DataTableColumns<Entity.DanceCostume> = [
   {
     title: 'ID',
     align: 'left',
     key: 'id',
+    render: (_, rowIndex) => {
+      return (pagination.page - 1) * pagination.pageSize + rowIndex + 1;
+    },
   },
   {
     title: 'Nama',
@@ -118,9 +121,9 @@ const getDanceCostumeList = async () => {
   endLoading()
 }
 
-const handleResetSearch = () => {
-  model.value = { ...initialModel }
-}
+// const handleResetSearch = () => {
+//   model.value = { ...initialModel }
+// }
 
 type ModalType = 'add' | 'edit'
 const modalType = ref<ModalType>('add')
@@ -147,7 +150,7 @@ const handleAddTable = () => {
 
 <template>
   <NSpace vertical size="large">
-    <n-card>
+    <!-- <n-card>
       <n-form ref="formRef" :model="model" label-placement="left" inline :show-feedback="false">
         <n-flex>
           <n-form-item label="Nama" path="condition_1">
@@ -169,7 +172,7 @@ const handleAddTable = () => {
           </n-flex>
         </n-flex>
       </n-form>
-    </n-card>
+    </n-card> -->
     <n-card>
       <NSpace vertical size="large">
         <div class="flex gap-4">
@@ -179,7 +182,7 @@ const handleAddTable = () => {
             </template>
             Tambah
           </NButton>
-          <NButton strong secondary>
+          <!-- <NButton strong secondary>
             <template #icon>
               <icon-park-outline-afferent />
             </template>
@@ -190,7 +193,7 @@ const handleAddTable = () => {
               <icon-park-outline-download />
             </template>
             Download
-          </NButton>
+          </NButton> -->
         </div>
         <n-data-table :columns="columns" :data="danceCostumes" :loading="loading" :pagination="pagination" />
         <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData"

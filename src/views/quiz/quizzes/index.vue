@@ -32,6 +32,9 @@ const columns: DataTableColumns<Entity.Quiz> = [
     title: 'ID',
     align: 'center',
     key: 'id',
+    render: (_, rowIndex) => {
+      return (pagination.page - 1) * pagination.pageSize + rowIndex + 1;
+    },
   },
   {
     title: 'Judul',
@@ -116,7 +119,7 @@ const handleAddTable = () => {
             </template>
             Tambah
           </NButton>
-          <NButton strong secondary>
+          <!-- <NButton strong secondary>
             <template #icon>
               <icon-park-outline-afferent />
             </template>
@@ -127,7 +130,7 @@ const handleAddTable = () => {
               <icon-park-outline-download />
             </template>
             Download
-          </NButton>
+          </NButton> -->
         </div>
         <n-data-table :columns="columns" :data="quizzes" :loading="loading" :pagination="pagination" />
         <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getQuizList" />

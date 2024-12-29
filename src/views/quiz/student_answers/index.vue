@@ -30,6 +30,9 @@ const columns: DataTableColumns<Entity.StudentAnswer> = [
     title: 'ID',
     align: 'center',
     key: 'id',
+    render: (_, rowIndex) => {
+      return (pagination.page - 1) * pagination.pageSize + rowIndex + 1;
+    },
   },
   {
     title: 'ID Percobaan Kuis',

@@ -93,6 +93,8 @@ const updateDanceData = async () => {
     _method: 'PUT',
   }
 
+  delete payload.dance_type
+
   const res = await danceStore.update(modalData.id, payload)
 
   if (res?.status === 200) {
