@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
 import { useDanceCostumeStore } from '@/store/dance-costume';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -129,12 +127,6 @@ const error = (path: string) => {
 
 const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
-}
-
-const headers = {
-  "Access-Control-Allow-Origin": "no-cors",
-  "Access-Control-Allow-Credentials": "true",
-  "X-XSRF-TOKEN": Cookies.get('XSRF-TOKEN'),
 }
 
 onMounted(() => {

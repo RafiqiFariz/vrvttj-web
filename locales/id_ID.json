@@ -1,16 +1,16 @@
 {
   "common": {
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "close": "Closure",
+    "cancel": "Batal",
+    "confirm": "Setuju",
+    "close": "Tutup",
     "reload": "Refresh",
-    "choose": "Choose",
-    "navigate": "Navigate",
-    "inputPlaceholder": "please enter",
-    "selectPlaceholder": "please choose"
+    "choose": "Pilih",
+    "navigate": "Navigasi",
+    "inputPlaceholder": "Masukkan",
+    "selectPlaceholder": "Pilih"
   },
   "app": {
-    "loginOut": "Login out",
+    "loginOut": "Keluar",
     "loginOutContent": "Confirm to log out of current account?",
     "loginOutTitle": "Sign out",
     "userCenter": "Personal center",

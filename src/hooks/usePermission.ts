@@ -1,7 +1,6 @@
 import { useAuthStore } from '@/store'
 import { isArray, isString } from 'radash'
 
-/** 权限判断 */
 export function usePermission() {
   const authStore = useAuthStore()
 
@@ -15,13 +14,13 @@ export function usePermission() {
       return false
     const { role } = authStore.user
 
-    let has = role === 'super'
-    if (!has) {
+    let has = role?.name === 'admin'
+    if (!has && role?.name) {
       if (isArray(permission))
-        has = permission.includes(role)
+        has = permission.includes(role.name as Entity.RoleType)
 
       if (isString(permission))
-        has = permission === role
+        has = permission === role.name
     }
     return has
   }

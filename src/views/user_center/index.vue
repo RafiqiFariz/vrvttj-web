@@ -22,20 +22,23 @@ const rules = {
 }
 
 const formRef = ref()
-const formValue = ref({
-  id: user?.value?.id ?? null,
-  name: user?.value?.name ?? '',
-  email: user?.value?.email ?? '',
-  phone: user?.value?.phone ?? '',
-  gender: user?.value?.gender ?? null,
+
+const defaultFormModal: Entity.User = {
+  id: null,
+  name: '',
+  email: '',
+  phone: '',
+  gender: null,
   password: '',
   password_confirmation: '',
-  religion: user?.value?.religion ?? null,
-  place_of_birth: user?.value?.place_of_birth ?? '',
-  date_of_birth: moment(user?.value?.date_of_birth).format('YYYY-MM-DD') ?? '',
-  role_id: user?.value?.role_id ?? null,
-  address: user?.value?.address ?? '',
-})
+  religion: null,
+  place_of_birth: '',
+  date_of_birth: '',
+  role_id: null,
+  address: '',
+}
+
+const formValue = ref({ ...defaultFormModal })
 
 const religions = [
   { label: 'Islam', value: 'islam' },
@@ -45,6 +48,11 @@ const religions = [
   { label: 'Budha', value: 'budha' },
   { label: 'Konghucu', value: 'konghucu' },
 ]
+
+const dateOfBirth = computed<any>({
+  get: () => formValue.value.date_of_birth ? moment(formValue.value.date_of_birth).toDate() : null,
+  set: (value: any) => formValue.value.date_of_birth = value ? moment(value).format('YYYY-MM-DD') : ''
+})
 
 const handleSubmit = () => {
   formRef.value?.validate(async (errors: any) => {
@@ -69,6 +77,25 @@ const isError = (path: string) => {
 const createFeedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
 }
+
+onMounted(() => {
+  authStore.fetchUser()
+})
+
+watch(user, (newUser) => {
+  formValue.value = {
+    ...formValue.value,
+    id: newUser?.id ?? null,
+    name: newUser?.name ?? '',
+    email: newUser?.email ?? '',
+    phone: newUser?.phone ?? '',
+    gender: newUser?.gender ?? null,
+    religion: newUser?.religion ?? null,
+    place_of_birth: newUser?.place_of_birth ?? '',
+    date_of_birth: moment(newUser?.date_of_birth).format('YYYY-MM-DD') ?? '',
+    address: newUser?.address ?? '',
+  };
+}, { immediate: true });
 </script>
 
 <template>
@@ -117,7 +144,7 @@ const createFeedback = (path: string) => {
             </n-form-item-grid-item>
             <n-form-item-grid-item :span="12" label="Tanggal Lahir" path="date_of_birth"
               :feedback="createFeedback('date_of_birth')" :validation-status="isError('date_of_birth')">
-              <n-date-picker type="date" class="w-full" v-model:value="formValue.date_of_birth" format="dd-MM-yyyy" />
+              <n-date-picker type="date" class="w-full" v-model:value="dateOfBirth" format="dd-MM-yyyy" />
             </n-form-item-grid-item>
             <n-form-item-grid-item :span="12" label="Alamat" path="address" :feedback="createFeedback('address')"
               :validation-status="isError('address')">

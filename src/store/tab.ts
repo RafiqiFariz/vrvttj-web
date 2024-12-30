@@ -19,15 +19,15 @@ export const useTabStore = defineStore('tab-store', {
   },
   actions: {
     addTab(route: RouteLocationNormalized) {
-      // 根据meta确定是否不添加，可用于错误页,登录页等
+      // Tentukan apakah tab tidak perlu ditambahkan berdasarkan meta, cocok untuk halaman error, login, dll
       if (route.meta.withoutTab)
         return
 
-      // 如果标签名称已存在则不添加
+      // Jangan tambahkan jika nama tab sudah ada
       if (this.hasExistTab(route.fullPath as string))
         return
 
-      // 根据meta.pinTab传递到不同的分组中
+      // Tambahkan ke grup berbeda berdasarkan meta.pinTab
       if (route.meta.pinTab)
         this.pinTabs.push(route)
       else
@@ -35,26 +35,25 @@ export const useTabStore = defineStore('tab-store', {
     },
     async closeTab(fullPath: string) {
       const tabsLength = this.tabs.length
-      // 如果动态标签大于一个,才会标签跳转
+      // Lakukan navigasi jika ada lebih dari satu tab dinamis
       if (this.tabs.length > 1) {
-        // 获取关闭的标签索引
+        // Dapatkan indeks tab yang akan ditutup
         const index = this.getTabIndex(fullPath)
         const isLast = index + 1 === tabsLength
-        // 如果是关闭的当前页面，路由跳转到原先标签的后一个标签
+        // Navigasi ke tab berikutnya jika tab saat ini ditutup
         if (this.currentTabPath === fullPath && !isLast) {
-          // 跳转到后一个标签
           router.push(this.tabs[index + 1].fullPath)
         }
         else if (this.currentTabPath === fullPath && isLast) {
-          // 已经是最后一个了，就跳转前一个
+          // Jika tab terakhir, navigasi ke tab sebelumnya
           router.push(this.tabs[index - 1].fullPath)
         }
       }
-      // 删除标签
+      // Hapus tab
       this.tabs = this.tabs.filter((item) => {
         return item.fullPath !== fullPath
       })
-      // 删除后如果清空了，就跳转到默认首页
+      // Jika semua tab dihapus, navigasi ke halaman default
       if (tabsLength - 1 === 0)
         router.push('/')
     },
@@ -86,7 +85,7 @@ export const useTabStore = defineStore('tab-store', {
         return item.fullPath === fullPath
       })
     },
-    /* 设置当前激活的标签 */
+    /* Atur tab aktif saat ini */
     setCurrentTab(fullPath: string) {
       this.currentTabPath = fullPath
     },

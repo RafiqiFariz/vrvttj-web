@@ -68,9 +68,9 @@ export const useAuthStore = defineStore('auth-store', {
       }
     },
 
-    async login(email: string, password: string) {
+    async login(email: string, password: string, remember: boolean) {
       try {
-        const user = await fetchLogin({ email, password })
+        const user = await fetchLogin({ email, password, remember })
 
         if (!user?.data)
           return

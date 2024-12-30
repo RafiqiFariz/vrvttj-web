@@ -64,7 +64,7 @@ export const useUserStore = defineStore('user', {
   },
   getters: {
     total: (state) => state.users.length,
-    UserzesOptions: (state) => state.users.map((user) => ({
+    userOptions: (state) => state.users.map((user) => ({
       value: user.id,
       label: user.name,
     })),

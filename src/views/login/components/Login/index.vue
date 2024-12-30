@@ -2,6 +2,7 @@
 import type { FormInst } from 'naive-ui'
 import { useAuthStore } from '@/store'
 import { local } from '@/utils'
+import Cookies from 'js-cookie'
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -31,9 +32,9 @@ const rules = computed(() => {
 const formValue = ref({
   email: 'admin@gmail.com',
   password: '12345678',
+  remember: false,
 })
 
-const isRemember = ref(false)
 const isLoading = ref(false)
 
 const formRef = ref<FormInst | null>(null)
@@ -43,13 +44,9 @@ function handleLogin() {
       return
 
     isLoading.value = true
-    const { email, password } = formValue.value
+    const { email, password, remember } = formValue.value
 
-    if (isRemember.value)
-      local.set('loginAccount', { email, password })
-    else local.remove('loginAccount')
-
-    await authStore.login(email, password)
+    await authStore.login(email, password, remember)
     isLoading.value = false
   })
 }
@@ -67,12 +64,12 @@ onMounted(() => {
 })
 
 function checkUserAccount() {
-  const loginAccount = local.get('loginAccount')
+  const loginAccount = Cookies.get('remember_web')
   if (!loginAccount)
     return
 
-  formValue.value = loginAccount
-  isRemember.value = true
+  // formValue.value = loginAccount
+  // isRemember.value = true
 }
 </script>
 
@@ -98,7 +95,7 @@ function checkUserAccount() {
       </n-form-item>
       <n-space vertical :size="20">
         <div class="flex-y-center justify-between">
-          <n-checkbox v-model:checked="isRemember">
+          <n-checkbox v-model:checked="formValue.remember">
             {{ $t('login.rememberMe') }}
           </n-checkbox>
           <n-button type="primary" text @click="toOtherForm('resetPwd')">

@@ -1,63 +1,63 @@
 declare namespace AppRoute {
 
   type MenuType = 'dir' | 'page'
-  /** 单个路由所携带的meta标识 */
+  /** Meta yang dibawa oleh setiap rute */
   interface RouteMeta {
-    /* 页面标题，通常必选。 */
+    /* Judul halaman, biasanya wajib. */
     title: string
-    /* 图标，一般配合菜单使用 */
+    /* Ikon, biasanya digunakan bersama dengan menu */
     icon?: string
-    /* 是否需要登录权限。 */
+    /* Apakah membutuhkan otorisasi login. */
     requiresAuth?: boolean
-    /* 可以访问的角色 */
+    /* Peran yang dapat mengakses */
     roles?: Entity.RoleType[]
-    /* 是否开启页面缓存 */
+    /* Apakah halaman menggunakan cache */
     keepAlive?: boolean
-    /* 有些路由我们并不想在菜单中显示，比如某些编辑页面。 */
+    /* Beberapa rute tidak ingin ditampilkan dalam menu, seperti halaman edit tertentu. */
     hide?: boolean
-    /* 菜单排序。 */
+    /* Urutan menu. */
     order?: number
-    /* 嵌套外链  */
+    /* Tautan eksternal tertanam */
     href?: string
-    /** 当前路由不在左侧菜单显示，但需要高亮某个菜单的情况 */
+    /** Rute saat ini tidak ditampilkan di menu kiri, tetapi perlu menyoroti menu tertentu */
     activeMenu?: string
-    /** 当前路由是否会被添加到Tab中 */
+    /** Apakah rute saat ini akan ditambahkan ke Tab */
     withoutTab?: boolean
-    /** 当前路由是否会被固定在Tab中,用于一些常驻页面 */
+    /** Apakah rute saat ini akan dipasang di Tab, digunakan untuk beberapa halaman permanen */
     pinTab?: boolean
-    /** 当前路由在左侧菜单是目录还是页面,不设置默认为page */
+    /** Apakah rute saat ini adalah direktori atau halaman di menu kiri, default adalah halaman */
     menuType?: MenuType
   }
 
   type MetaKeys = keyof RouteMeta
 
   interface baseRoute {
-    /** 路由名称(路由唯一标识) */
+    /** Nama rute (identifikasi unik rute) */
     name: string
-    /** 路由路径 */
+    /** Jalur rute */
     path: string
-    /** 路由重定向 */
+    /** Pengalihan rute */
     redirect?: string
-    /* 页面组件地址 */
+    /* Alamat komponen halaman */
     componentPath?: string | null
-    /* 路由id */
+    /* ID rute */
     id: number
-    /* 父级路由id，顶级页面为null */
+    /* ID rute induk, halaman tingkat atas adalah null */
     pid: number | null
   }
 
-  /** 单个路由的类型结构(动态路由模式：后端返回此类型结构的路由) */
+  /** Struktur tipe rute tunggal (mode rute dinamis: backend mengembalikan struktur tipe ini untuk rute) */
   type RowRoute = RouteMeta & baseRoute
 
   /**
-   * 挂载到项目上的真实路由结构
+   * Struktur rute nyata yang dipasang ke proyek
    */
   interface Route extends baseRoute {
-    /** 子路由 */
+    /** Rute anak */
     children?: Route[]
-    /* 页面组件 */
+    /* Komponen halaman */
     component: any
-    /** 路由描述 */
+    /** Deskripsi rute */
     meta: RouteMeta
   }
 

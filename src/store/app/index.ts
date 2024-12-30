@@ -3,6 +3,7 @@ import { local, setLocale } from '@/utils'
 import { colord } from 'colord'
 import { set } from 'radash'
 import themeConfig from './theme.json'
+import { App } from '@/typings/global'
 
 export type TransitionAnimation = '' | 'fade-slide' | 'fade-bottom' | 'fade-scale' | 'zoom-fade' | 'zoom-out'
 export type LayoutMode = 'leftMenu' | 'topMenu' | 'mixMenu'
@@ -53,7 +54,7 @@ export const useAppStore = defineStore('app-store', {
     },
   },
   actions: {
-    // 重置所有设置
+    // Reset semua pengaturan tema
     resetAlltheme() {
       this.theme = themeConfig
       this.primaryColor = '#18a058'
@@ -71,7 +72,7 @@ export const useAppStore = defineStore('app-store', {
       this.layoutMode = 'leftMenu'
       this.contentFullScreen = false
 
-      // 重置所有配色
+      // Atur ulang semua warna
       this.setPrimaryColor(this.primaryColor)
     },
     setAppLang(lang: App.lang) {
@@ -79,7 +80,7 @@ export const useAppStore = defineStore('app-store', {
       local.set('lang', lang)
       this.lang = lang
     },
-    /* 设置主题色 */
+    /* Tetapkan warna tema */
     setPrimaryColor(color: string) {
       const brightenColor = colord(color).lighten(0.05).toHex()
       const darkenColor = colord(color).darken(0.05).toHex()
@@ -91,17 +92,16 @@ export const useAppStore = defineStore('app-store', {
     setColorMode(mode: 'light' | 'dark' | 'auto') {
       store.value = mode
     },
-    /* 切换侧边栏收缩 */
     toggleCollapse() {
       this.collapsed = !this.collapsed
     },
-    /* 切换全屏 */
+    /* Ganti ke layar penuh */
     toggleFullScreen() {
       toggle()
     },
     /**
-     * @description: 页面内容重载
-     * @param {number} delay - 延迟毫秒数
+     * @description: Muat ulang konten halaman
+     * @param {number} delay - Delay dalam milidetik
      * @return {*}
      */
     async reloadPage(delay = 600) {
@@ -116,12 +116,12 @@ export const useAppStore = defineStore('app-store', {
         this.loadFlag = true
       }
     },
-    /* 切换色弱模式 */
+    /* Ganti mode kelemahan warna */
     toggleColorWeak() {
       docEle.value.classList.toggle('color-weak')
       this.colorWeak = docEle.value.classList.contains('color-weak')
     },
-    /* 切换灰色模式 */
+    /* Ganti ke mode abu-abu */
     toggleGrayMode() {
       docEle.value.classList.toggle('gray-mode')
       this.grayMode = docEle.value.classList.contains('gray-mode')

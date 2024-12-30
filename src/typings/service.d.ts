@@ -1,4 +1,4 @@
-/** 请求的相关类型 */
+/** Tipe terkait permintaan */
 declare namespace Service {
   import type { Method } from 'alova'
 
@@ -8,15 +8,15 @@ declare namespace Service {
     beforeRequest?: (method: Method<globalThis.Ref<unknown>>) => void
   }
 
-  /** 后端接口返回的数据结构配置 */
+  /** Konfigurasi struktur data yang dikembalikan oleh antarmuka backend */
   interface BackendConfig {
-    /** 表示后端请求状态码的属性字段 */
+    /** Properti yang menunjukkan kode status permintaan dari backend */
     codeKey?: string
-    /** 表示后端请求数据的属性字段 */
+    /** Properti yang menunjukkan data permintaan dari backend */
     dataKey?: string
-    /** 表示后端消息的属性字段 */
+    /** Properti yang menunjukkan pesan dari backend */
     msgKey?: string
-    /** 后端业务上定义的成功请求的状态 */
+    /** Status yang didefinisikan backend sebagai permintaan berhasil secara bisnis */
     successCode?: number | string
   }
 
@@ -24,26 +24,26 @@ declare namespace Service {
   type RequestCode = string | number
 
   interface RequestError {
-    /** 请求服务的错误类型 */
+    /** Jenis kesalahan permintaan layanan */
     errorType: RequestErrorType
-    /** 错误码 */
+    /** Kode kesalahan */
     code: RequestCode
-    /** 错误信息 */
+    /** Pesan kesalahan */
     message: string
-    /** 返回的数据 */
+    /** Data yang dikembalikan */
     data?: any
   }
 
   interface ResponseResult<T> extends RequestError {
-    /** 请求服务是否成功 */
+    /** Apakah permintaan layanan berhasil */
     isSuccess: boolean
-    /** 请求服务的错误类型 */
+    /** Jenis kesalahan permintaan layanan */
     errorType: RequestErrorType
-    /** 错误码 */
+    /** Kode kesalahan */
     code: RequestCode
-    /** 错误信息 */
+    /** Pesan kesalahan */
     message: string
-    /** 返回的数据 */
+    /** Data yang dikembalikan */
     data: T
   }
 }

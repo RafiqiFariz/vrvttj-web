@@ -1,10 +1,8 @@
-import { User } from 'firebase/auth'
-
-/* 存放数据库实体表类型， 具体内容在 ./entities */
+/* Menyimpan tipe tabel entitas database, isi detail ada di ./entities */
 declare namespace Entity {
 }
 
-/* 各类接口返回的数据类型， 具体内容在 ./api */
+/* Tipe data yang dikembalikan oleh berbagai antarmuka, isi detail ada di ./api */
 declare namespace Api {
 
 }
@@ -38,17 +36,17 @@ declare namespace Storage {
   }
 
   interface Local {
-    /* 存储用户信息 */
-    userInfo: User
-    /* 存储登录账号 */
+    /* Menyimpan informasi pengguna */
+    userInfo: Entity.User
+    /* Menyimpan akun login */
     loginAccount: any
-    /* 存储当前语言 */
+    /* Menyimpan bahasa saat ini */
     lang: App.lang
   }
 }
 
-declare namespace App {
-  type lang = 'zhCN' | 'enUS'
+export declare namespace App {
+  type lang = 'idID' | 'enUS'
 }
 
 interface DictMap {
