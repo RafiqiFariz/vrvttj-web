@@ -137,10 +137,10 @@ watch(
     <template #action>
       <n-space justify="center">
         <n-button @click="closeModal()">
-          Batal
+          {{ $t('common.cancel') }}
         </n-button>
         <n-button type="primary" @click="handleSubmit">
-          Kirim
+          {{ $t('common.submit') }}
         </n-button>
       </n-space>
     </template>

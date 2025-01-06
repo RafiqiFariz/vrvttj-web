@@ -3,7 +3,7 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { useDanceMoveStore } from '@/store/dance-move';
+import { useDanceMoveStore } from '@/store/dance_move';
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)

@@ -3,7 +3,7 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { useDanceCostumeStore } from '@/store/dance-costume';
+import { useDanceCostumeStore } from '@/store/dance_costume';
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
@@ -79,6 +79,7 @@ const columns: DataTableColumns<Entity.DanceCostume> = [
     title: 'Deskripsi',
     align: 'center',
     key: 'description',
+    ellipsis: true,
     render: (row) => row.description ?? '-',
   },
   {

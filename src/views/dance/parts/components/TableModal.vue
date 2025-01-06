@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDancePartStore } from '@/store/dance-part';
+import { useDancePartStore } from '@/store/dance_part';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -154,10 +154,10 @@ watch(
     <template #action>
       <n-space justify="center">
         <n-button @click="closeModal()">
-          Batal
+          {{ $t('common.cancel') }}
         </n-button>
         <n-button type="primary" @click="handleSubmit">
-          Kirim
+          {{ $t('common.submit') }}
         </n-button>
       </n-space>
     </template>

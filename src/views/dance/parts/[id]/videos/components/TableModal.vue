@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useDanceStore } from '@/store/dance';
-import { useDanceMoveStore } from '@/store/dance_move';
-import { useDancePartStore } from '@/store/dance_part';
-import _ from 'lodash';
+import { useDancePartVideoStore } from '@/store/dance_part_video';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -17,20 +14,15 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
+const dancePartVideoStore = useDancePartVideoStore()
+const { errors } = storeToRefs(dancePartVideoStore)
+const route = useRoute()
+const dancePartId = ref<number>(Number(route.params.id))
 
-const API_URL = import.meta.env.VITE_API_URL
-const danceMoveStore = useDanceMoveStore()
-const danceStore = useDanceStore()
-const dancePartStore = useDancePartStore()
-const { errors } = storeToRefs(danceMoveStore)
-const { danceOptions } = storeToRefs(danceStore)
-const { dancePartOptions } = storeToRefs(dancePartStore)
-
-const defaultFormModal: Entity.DanceMove = {
-  dance_id: null,
-  dance_part_id: null,
-  name: '',
-  picture: '',
+const defaultFormModal: Entity.DancePartVideo = {
+  dance_part_id: dancePartId.value,
+  thumbnail_path: '',
+  video_path: '',
   description: '',
 }
 
@@ -58,8 +50,8 @@ const closeModal = (visible = false) => {
 type ModalType = 'add' | 'edit'
 const title = computed(() => {
   const titles: Record<ModalType, string> = {
-    add: 'Tambah Gerak Tari',
-    edit: 'Edit Gerak Tari',
+    add: 'Tambah Video Bagian Tari',
+    edit: 'Edit Video Bagian Tari',
   }
   return titles[type]
 })
@@ -71,21 +63,32 @@ const UpdateFormModelByModalType = () => {
     },
     edit: () => {
       if (modalData)
-        formModel.value = { ...modalData }
+        formModel.value = {
+          ...modalData,
+          dance_part_id: dancePartId.value,
+        }
     },
   }
   handlers[type]()
 }
 
-const handleUploadChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
+const handleUploadThumbnailChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
   const { file } = options
   if (file.file) {
-    formModel.value.picture = file.file
+    formModel.value.thumbnail_path = file.file
   }
 }
 
-const createDanceMoveData = async () => {
-  const res = await danceMoveStore.create(formModel.value)
+const handleUploadVideoChange = (options: { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event }) => {
+  const { file } = options
+  if (file.file) {
+    formModel.value.video_path = file.file
+  }
+}
+
+const createDancePartData = async () => {
+  const res = await dancePartVideoStore.create(dancePartId.value, formModel.value)
+  console.log(errors.value)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -93,15 +96,13 @@ const createDanceMoveData = async () => {
   }
 }
 
-const updateDanceMoveData = async () => {
+const updateDancePartData = async () => {
   const payload = {
     ...formModel.value,
     _method: 'PUT',
   }
-  delete payload.dance
-  delete payload.dance_part
 
-  const res = await danceMoveStore.update(modalData.id, payload)
+  const res = await dancePartVideoStore.update(dancePartId.value, modalData.id, payload)
 
   if (res?.status === 200) {
     emit('fetchData')
@@ -111,9 +112,9 @@ const updateDanceMoveData = async () => {
 
 const handleSubmit = async () => {
   if (type === 'add') {
-    await createDanceMoveData()
+    await createDancePartData()
   } else {
-    await updateDanceMoveData()
+    await updateDancePartData()
   }
 }
 
@@ -124,11 +125,6 @@ const error = (path: string) => {
 const feedback = (path: string) => {
   return errors.value[path] ? errors.value[path][0] : ''
 }
-
-onMounted(() => {
-  danceStore.all({ paginate: false })
-  dancePartStore.all({ paginate: false })
-})
 
 watch(
   () => visible,
@@ -146,28 +142,25 @@ watch(
   }">
     <n-form label-placement="left" :model="formModel" label-align="left" :label-width="80">
       <n-grid :cols="24" :x-gap="18">
-        <n-form-item-grid-item :span="24" label="Nama Tarian" path="dance_id" :feedback="feedback('dance_id')"
-          :validation-status="error('dance_id')">
-          <n-select :options="danceOptions" v-model:value="formModel.dance_id"
-            placeholder="Pilih Tarian" />
-        </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Bagian Tari" path="dance_part_id" :feedback="feedback('dance_part_id')"
-          :validation-status="error('dance_part_id')">
-          <n-select :options="dancePartOptions" v-model:value="formModel.dance_part_id"
-            placeholder="Pilih Bagian Tari" />
-        </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Gambar" path="picture" :feedback="feedback('picture')"
-          :validation-status="error('picture')">
+        <n-form-item-grid-item :span="24" label="Thumbnail" path="thumbnail_path" :feedback="feedback('thumbnail_path')"
+          :validation-status="error('thumbnail_path')">
           <n-space vertical>
-            <n-image width="100" :src="`${API_URL}/storage/${formModel.picture}`" v-if="type === 'edit'" />
-            <n-upload accept=".jpg,.png,.jpeg" :default-upload="false" :max="1" @change="handleUploadChange">
+            <n-image width="100" :src="typeof formModel.thumbnail_path === 'string' ? formModel.thumbnail_path : ''"
+              v-if="type === 'edit'" />
+            <n-upload accept=".jpg,.png,.jpeg" :default-upload="false" :max="1" @change="handleUploadThumbnailChange">
               <n-button>Select File</n-button>
             </n-upload>
           </n-space>
         </n-form-item-grid-item>
-        <n-form-item-grid-item :span="24" label="Nama" path="name" :feedback="feedback('name')"
-          :validation-status="error('name')">
-          <n-input v-model:value="formModel.name" placeholder="Masukkan nama" />
+        <n-form-item-grid-item :span="24" label="Video" path="video_path" :feedback="feedback('video_path')"
+          :validation-status="error('video_path')">
+          <n-space vertical>
+            <video width="200" :src="typeof formModel.video_path === 'string' ? formModel.video_path : ''"
+              v-if="type === 'edit'" controls />
+            <n-upload accept=".mp4" :default-upload="false" :max="1" @change="handleUploadVideoChange">
+              <n-button>Select File</n-button>
+            </n-upload>
+          </n-space>
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Deskripsi" path="description" :feedback="feedback('description')"
           :validation-status="error('description')">

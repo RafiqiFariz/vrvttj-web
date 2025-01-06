@@ -5,6 +5,7 @@ import AppVue from './App.vue'
 import AppLoading from './components/common/AppLoading.vue'
 import axios from 'axios'
 import vue3dLoader from "vue-3d-loader";
+import SirvjsVue from '@sirv/sirvjs-vue';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.withCredentials = true;
@@ -26,6 +27,9 @@ async function setupApp() {
 
   // Vue-3d-loader
   app.use(vue3dLoader)
+
+  // SirvjsVue
+  app.use(SirvjsVue)
 
   Object.values(
     import.meta.glob<{ install: (app: App) => void }>('./modules/*.ts', {

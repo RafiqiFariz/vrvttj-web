@@ -7,7 +7,8 @@
     "choose": "Pilih",
     "navigate": "Navigasi",
     "inputPlaceholder": "Masukkan",
-    "selectPlaceholder": "Pilih"
+    "selectPlaceholder": "Pilih",
+    "submit": "Kirim"
   },
   "app": {
     "loginOut": "Keluar",

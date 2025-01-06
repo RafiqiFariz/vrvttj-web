@@ -2,7 +2,6 @@
 import type { FormInst } from 'naive-ui'
 import { useAuthStore } from '@/store'
 import { local } from '@/utils'
-import Cookies from 'js-cookie'
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -30,8 +29,8 @@ const rules = computed(() => {
 })
 
 const formValue = ref({
-  email: 'admin@gmail.com',
-  password: '12345678',
+  email: '',
+  password: '',
   remember: false,
 })
 
@@ -45,6 +44,10 @@ function handleLogin() {
 
     isLoading.value = true
     const { email, password, remember } = formValue.value
+
+    if (remember)
+      local.set('loginAccount', { email, password })
+    else local.remove('loginAccount')
 
     await authStore.login(email, password, remember)
     isLoading.value = false
@@ -64,12 +67,13 @@ onMounted(() => {
 })
 
 function checkUserAccount() {
-  const loginAccount = Cookies.get('remember_web')
+  const loginAccount = local.get('loginAccount')
+
   if (!loginAccount)
     return
 
-  // formValue.value = loginAccount
-  // isRemember.value = true
+  formValue.value = loginAccount
+  formValue.value.remember = true
 }
 </script>
 

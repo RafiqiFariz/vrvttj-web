@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDanceStore } from '@/store/dance';
-import { useDanceTypeStore } from '@/store/dance-type';
+import { useDanceTypeStore } from '@/store/dance_type';
 import { UploadFileInfo } from 'naive-ui';
 
 interface Props {
@@ -169,10 +169,10 @@ watch(
     <template #action>
       <n-space justify="center">
         <n-button @click="closeModal()">
-          Batal
+          {{ $t('common.cancel') }}
         </n-button>
         <n-button type="primary" @click="handleSubmit">
-          Kirim
+          {{ $t('common.submit') }}
         </n-button>
       </n-space>
     </template>

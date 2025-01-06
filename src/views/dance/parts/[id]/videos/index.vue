@@ -3,15 +3,20 @@ import type { DataTableColumns, FormInst } from 'naive-ui'
 import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
-import { useDancePartStore } from '@/store/dance_part';
-import { router } from '@/router';
+import { useDancePartVideoStore } from '@/store/dance_part_video';
+import { loadScript } from '@sirv/sirvjs-vue';
+
+loadScript().then((sirv) => {
+  sirv.start();
+})
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
 
-const API_URL = import.meta.env.VITE_API_URL
-const dancePartStore = useDancePartStore()
-const { danceParts } = storeToRefs(dancePartStore)
+const dancePartVideoStore = useDancePartVideoStore()
+const { dancePartVideos } = storeToRefs(dancePartVideoStore)
+const route = useRoute()
+const dancePartId = ref<number>(Number(route.params.id))
 
 const pagination = reactive({
   page: 1,
@@ -20,12 +25,12 @@ const pagination = reactive({
   pageSizes: [10, 20, 30, 50],
   onChange: (page: number) => {
     pagination.page = page
-    getDancePartList()
+    getDancePartVideoList(dancePartId.value)
   },
   onUpdatePageSize: (pageSize: number) => {
     pagination.pageSize = pageSize
     pagination.page = 1
-    getDancePartList()
+    getDancePartVideoList(dancePartId.value)
   },
 })
 
@@ -37,7 +42,7 @@ const pagination = reactive({
 // const model = ref({ ...initialModel })
 
 // const formRef = ref<FormInst | null>()
-const columns: DataTableColumns<Entity.DancePart> = [
+const columns: DataTableColumns<Entity.DancePartVideo> = [
   {
     title: 'ID',
     align: 'left',
@@ -47,20 +52,28 @@ const columns: DataTableColumns<Entity.DancePart> = [
     },
   },
   {
-    title: 'Nama',
+    title: 'Thumbnail',
     align: 'center',
-    key: 'name',
-  },
-  {
-    title: 'Gambar',
-    align: 'center',
-    key: 'picture',
+    key: 'thumbnail_path',
     render: (row) => {
       return (<>
         {
-          row.picture ?
-            <n-image width="50" src={`${API_URL}/storage/${row.picture}`}
+          row.thumbnail_path ?
+            <n-image width="200" src={row.thumbnail_path}
             /> : '-'
+        }
+      </>)
+    },
+  },
+  {
+    title: 'Video',
+    align: 'center',
+    key: 'video_path',
+    render: (row) => {
+      return (<>
+        {
+          row.video_path ?
+            <video width="200" src={typeof row.video_path === 'string' ? row.video_path : ''} controls /> : '-'
         }
       </>)
     },
@@ -81,21 +94,15 @@ const columns: DataTableColumns<Entity.DancePart> = [
         <NSpace justify="center">
           <NButton
             size="small"
-            type='success'
-            onClick={() => router.push(`/dance/parts/${row.id}/videos`)}
-          >
-            Video
-          </NButton>
-          <NButton
-            size="small"
             onClick={() => handleEditTable(row)}
           >
             Edit
           </NButton>
           <NPopconfirm onPositiveClick={async () => {
-            const res = await dancePartStore.destroy(row.id!)
+            console.log(row.id!, 'test')
+            const res = await dancePartVideoStore.destroy(dancePartId.value, row.id!)
             window.$message.success(res?.data.message)
-            getDancePartList()
+            getDancePartVideoList(dancePartId.value)
           }}>
             {{
               default: () => 'Yakin ingin menghapus?',
@@ -109,12 +116,12 @@ const columns: DataTableColumns<Entity.DancePart> = [
 ]
 
 onMounted(() => {
-  getDancePartList()
+  getDancePartVideoList(dancePartId.value)
 })
 
-const getDancePartList = async () => {
+const getDancePartVideoList = async (dancePartId: number) => {
   startLoading()
-  await dancePartStore.all({ page: pagination.page, pageSize: pagination.pageSize })
+  await dancePartVideoStore.all({ dancePartId, page: pagination.page, pageSize: pagination.pageSize })
   endLoading()
 }
 
@@ -128,12 +135,12 @@ const setModalType = (type: ModalType) => {
   modalType.value = type
 }
 
-const editData = ref<Entity.DancePart | null>(null)
-const setEditData = (data: Entity.DancePart | null) => {
+const editData = ref<Entity.DancePartVideo | null>(null)
+const setEditData = (data: Entity.DancePartVideo | null) => {
   editData.value = data
 }
 
-const handleEditTable = (row: Entity.DancePart) => {
+const handleEditTable = (row: Entity.DancePartVideo) => {
   setEditData(row)
   setModalType('edit')
   openModal()
@@ -153,22 +160,22 @@ const handleAddTable = () => {
             <n-input v-model:value="model.condition_1" placeholder="Masukkan nama" />
           </n-form-item>
           <n-flex class="ml-auto">
-            <NButton type="primary" @click="getDancePartList">
+            <NButton type="primary" @click="getDancePartVideoList">
               <template #icon>
                 <icon-park-outline-search />
               </template>
-              Cari
-            </NButton>
-            <NButton strong secondary @click="handleResetSearch">
-              <template #icon>
+Cari
+</NButton>
+<NButton strong secondary @click="handleResetSearch">
+  <template #icon>
                 <icon-park-outline-redo />
               </template>
-              Reset
-            </NButton>
-          </n-flex>
-        </n-flex>
-      </n-form>
-    </n-card> -->
+  Reset
+</NButton>
+</n-flex>
+</n-flex>
+</n-form>
+</n-card> -->
     <n-card>
       <NSpace vertical size="large">
         <div class="flex gap-4">
@@ -191,8 +198,9 @@ const handleAddTable = () => {
             Download
           </NButton> -->
         </div>
-        <n-data-table :columns="columns" :data="danceParts" :loading="loading" :pagination="pagination" />
-        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData" @fetch-data="getDancePartList"/>
+        <n-data-table :columns="columns" :data="dancePartVideos" :loading="loading" :pagination="pagination" />
+        <TableModal v-model:visible="visible" :type="modalType" :modal-data="editData"
+          @fetch-data="getDancePartVideoList(dancePartId)" />
       </NSpace>
     </n-card>
   </NSpace>

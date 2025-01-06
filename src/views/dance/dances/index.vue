@@ -46,6 +46,11 @@ const columns: DataTableColumns<Entity.Dance> = [
     },
   },
   {
+    title: 'Jenis Tarian',
+    align: 'center',
+    key: 'dance_type.name',
+  },
+  {
     title: 'Nama',
     align: 'center',
     key: 'name',

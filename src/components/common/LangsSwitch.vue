@@ -3,13 +3,13 @@ import { useAppStore } from '@/store'
 
 const appStore = useAppStore()
 const options = [
+{
+    label: 'English',
+    value: 'enUS',
+  },
   {
     label: 'Indonesia',
     value: 'idID',
-  },
-  {
-    label: 'English',
-    value: 'enUS',
   },
 ]
 </script>
