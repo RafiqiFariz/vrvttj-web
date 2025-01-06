@@ -4,11 +4,6 @@ import { useBoolean } from '@/hooks'
 import { NButton, NPopconfirm, NSpace } from 'naive-ui'
 import TableModal from './components/TableModal.vue'
 import { useDancePartVideoStore } from '@/store/dance_part_video';
-import { loadScript } from '@sirv/sirvjs-vue';
-
-loadScript().then((sirv) => {
-  sirv.start();
-})
 
 const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolean(false)
 const { bool: visible, setTrue: openModal } = useBoolean(false)
