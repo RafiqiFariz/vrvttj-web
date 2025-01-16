@@ -42,6 +42,11 @@ const columns: DataTableColumns<Entity.Quiz> = [
     key: 'title',
   },
   {
+    title: 'Maksimal Percobaan',
+    align: 'center',
+    key: 'allowed_attempts',
+  },
+  {
     title: 'Deskripsi',
     align: 'center',
     key: 'description',

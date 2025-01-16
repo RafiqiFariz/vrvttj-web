@@ -74,7 +74,7 @@
     "signIn": "Sign in",
     "signUp": "Sign up",
     "noAccountText": "Don't have an account?",
-    "accountPlaceholder": "Enter email address",
+    "emailPlaceholder": "Enter email address",
     "checkPasswordPlaceholder": "Please enter password again",
     "checkPasswordRuleTip": "Please confirm password again",
     "haveAccountText": "Do you have an account?",

@@ -18,6 +18,7 @@ const { errors } = storeToRefs(quizStore)
 
 const defaultFormModal: Entity.Quiz = reactive({
   title: '',
+  allowed_attempts: 1,
   description: '',
 })
 
@@ -124,6 +125,11 @@ watch(
         <n-form-item-grid-item :span="24" label="Judul" path="title" :feedback="feedback('title')"
           :validation-status="error('title')">
           <n-input v-model:value="formModel.title" placeholder="Masukkan judul" />
+        </n-form-item-grid-item>
+        <n-form-item-grid-item :span="24" label="Maksimal Percobaan" path="allowed_attempts"
+          :feedback="feedback('allowed_attempts')" :validation-status="error('allowed_attempts')">
+          <n-input-number v-model:value="formModel.allowed_attempts" placeholder="Masukkan maksimal percobaan"
+            clearable />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="24" label="Deskripsi" path="description" :feedback="feedback('description')"
           :validation-status="error('description')">
